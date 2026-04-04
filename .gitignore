@@ -1,11 +1,15 @@
-# Ignore Eclipse metadata
 .classpath
 .project
 .settings/
+.metadata/
 bin/
+*.class
 
-# Ignore text files (to prevent accidental uploads/conflicts)
-*.txt
+*.log
+*.tmp
+*.temp
 
-# Prevent Maven detection
+# --- Maven Prevention ---
 pom.xml
+target/
+.m2/
