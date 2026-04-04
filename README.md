@@ -20,27 +20,45 @@ Follow these steps exactly to ensure your local environment matches the reposito
  ## **Source Code Issue**
  Please delete the repo and import again!
 
-To prevent losing your work, follow these three steps every time you sit down to code:
-### START: Always Pull First 📥
-Before you open Eclipse or touch any code, get the latest updates from the team:
+# 🛠️ Git Workflow Guide (Team Standard)
+To prevent losing your work and avoid conflicts, follow these steps **every time you start coding**:
+
+---
+## 📥 START: Always Pull First
+Before opening Eclipse or modifying any code, pull the latest changes:
 ```bash
 git pull origin main
-
-### **WORK: Use Your Own Branch **
-# Create and switch to your personal branch
+```
+---
+## 🌿 WORK: Use Your Own Branch
+Create and switch to a personal feature branch:
+```bash
 git checkout -b yourname-featurename
-
-### **FINISH: The "Safe" Push 🚀**
-# 1. Save your changes
+```
+---
+## 🚀 FINISH: The "Safe" Push
+### 1. Save your changes
+```bash
 git add .
 git commit -m "Clear description of what you did"
-
-# 2. IMPORTANT: Pull one last time to check for conflicts
+```
+---
+### 2. Pull again to avoid conflicts
+```bash
 git pull origin main
+```
+---
 
-# 3. Push your branch to GitHub
+### 3. Push your branch to GitHub
+```bash
 git push origin yourname-featurename
+```
+---
 
-Once your branch is pushed to GitHub:
-Go to the GitHub website.
-Click "Compare & pull request" for your branch.
+## 🔁 Create a Pull Request
+Once your branch is pushed:
+1. Go to your repository on GitHub  
+2. Click **"Compare & pull request"**  
+3. Add a clear description of your changes  
+4. Submit the pull request for review  
+---
