@@ -1,0 +1,11 @@
+# Ignore Eclipse metadata
+.classpath
+.project
+.settings/
+bin/
+
+# Ignore text files (to prevent accidental uploads/conflicts)
+*.txt
+
+# Prevent Maven detection
+pom.xml
