@@ -34,7 +34,7 @@ public class HomePage extends JFrame {
 	            this.setIconImage(logoImg);
 	        }
 
-	        setSize(1800, 1000);
+	        setExtendedState(JFrame.MAXIMIZED_BOTH);
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setLocationRelativeTo(null);
 	        setLayout(new BorderLayout());
