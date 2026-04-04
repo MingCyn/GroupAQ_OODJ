@@ -1,1 +1,2 @@
 ADM0001, AdminAPU, Admin123, Admin, 012-3456789, APUAdmin@gmail.com, 
+CTM0001, mingcyn, mingcyn123, Customer, None, None
