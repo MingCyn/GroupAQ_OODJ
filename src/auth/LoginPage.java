@@ -20,28 +20,14 @@ public class LoginPage extends JFrame {
         lblNewLabel.setBounds(25, 10, 108, 87);
         loginPanel.add(lblNewLabel);
         
-        // Try classpath resource first, then filesystem locations where you may have placed images
-        Image img = null;
-        String resourcePath = "/images/APU-logo.png";
-        URL iconUrl = LoginPage.class.getResource(resourcePath);
+        URL iconUrl = LoginPage.class.getResource("/images/APU-logo.png");
         if (iconUrl != null) {
-            img = new ImageIcon(iconUrl).getImage();
-        } else {
-            java.io.File f = new java.io.File("images/APU-logo.png");
-            if (f.exists()) {
-                img = new ImageIcon(f.getAbsolutePath()).getImage();
-            } else {
-                f = new java.io.File("src/images/APU-logo.png");
-                if (f.exists()) {
-                    img = new ImageIcon(f.getAbsolutePath()).getImage();
-                }
-            }
-        }
-
-        if (img != null) {
+            ImageIcon icon = new ImageIcon(iconUrl);
+            Image img = icon.getImage();
             Image scaledImg = img.getScaledInstance(108, 108, Image.SCALE_SMOOTH);
             lblNewLabel.setIcon(new ImageIcon(scaledImg));
         } else {
+            // Resource not found; leave label text or set a default
             lblNewLabel.setText("");
         }
 
