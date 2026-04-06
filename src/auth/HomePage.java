@@ -5,145 +5,153 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class HomePage extends JFrame {
-    private JPanel sidebar, contentPanel;
-    private JLabel lblUserName;
-    private JLabel lblUserId;
-    private String userRole;
+	private JPanel sidebar, contentPanel;
+	private JLabel lblUserName;
+	private JLabel lblUserId;
+	private String userRole;
 
-    public HomePage(String role, String userName) {
-        this.userRole = role; 
-        setTitle("APU Automotive Service Centre");
+	public HomePage(String role, String userName) {
+	        this.userRole = role; 
+	        setTitle("APU Automotive Service Centre");
 
-        // Try-catch or null check is good practice for resources
-        try {
-            ImageIcon logo = new ImageIcon(getClass().getResource("/images/logo.png"));
-            this.setIconImage(logo.getImage());
-        } catch (Exception e) {
-            System.out.println("Logo not found, using default icon.");
-        }
+	        // Try classpath resource first, then fallback to common filesystem locations
+	        Image logoImg = null;
+	        java.net.URL logoUrl = getClass().getResource("/images/logo.png");
+	        if (logoUrl != null) {
+	            logoImg = new ImageIcon(logoUrl).getImage();
+	        } else {
+	            java.io.File f = new java.io.File("images/logo.png");
+	            if (f.exists()) {
+	                logoImg = new ImageIcon(f.getAbsolutePath()).getImage();
+	            } else {
+	                f = new java.io.File("src/images/logo.png");
+	                if (f.exists()) {
+	                    logoImg = new ImageIcon(f.getAbsolutePath()).getImage();
+	                }
+	            }
+	        }
+	        if (logoImg != null) {
+	            this.setIconImage(logoImg);
+	        }
 
-        // --- SCREEN SIZING FOR LAPTOP FULLSCREEN ---
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizes on start
-        setMinimumSize(new Dimension(1024, 768)); // Prevents UI from collapsing too small
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+	        setExtendedState(JFrame.MAXIMIZED_BOTH);
+	        setMinimumSize(new Dimension(800, 600));
+	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        setLocationRelativeTo(null);
+	        setLayout(new BorderLayout());
 
-        // 1. Sidebar Setup
-        sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(211, 238, 252)); 
-        
-        // Responsive sidebar width: 20% of screen width, but between 200px and 350px
-        int sWidth = (int) (screenSize.width * 0.2);
-        sWidth = Math.max(220, Math.min(sWidth, 350));
-        sidebar.setPreferredSize(new Dimension(sWidth, screenSize.height));
-        sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
+	        // 1. Sidebar Setup
+	        sidebar = new JPanel();
+	        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+	        sidebar.setBackground(new Color(211, 238, 252)); 
+	        
+	        // Responsive sidebar width
+	        int sWidth = (int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.2);
+	        sWidth = Math.max(200, Math.min(sWidth, 350));
+	        sidebar.setPreferredSize(new Dimension(sWidth, 0));
+	        sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
-        // User Profile Section - Scaled Fonts
-        int nameFontSize = Math.max(16, (int) (screenSize.width * 0.015));
-        int idFontSize = Math.max(12, (int) (screenSize.width * 0.010));
+	        // User Profile Section
+	        lblUserName = new JLabel(userName);
+	        // Responsive font
+	        int fontTitleSize = Math.max(16, (int)(sWidth * 0.08)); 
+	        lblUserName.setFont(new Font("Arial", Font.BOLD, fontTitleSize));
+	        lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
+	        
+	        String userId = "";
+	        try {
+	            java.util.List<String> lines = java.nio.file.Files.readAllLines(java.nio.file.Paths.get("data", "account.txt"));
+	            for (String line : lines) {
+	                String[] parts = line.split(",");
+	                if (parts.length > 1 && parts[1].trim().equals(userName)) {
+	                    userId = parts[0].trim();
+	                    break;
+	                }
+	            }
+	        } catch (java.io.IOException e) {
+	            e.printStackTrace();
+	        }
+	        
+	        lblUserId = new JLabel(userId);
+	        lblUserId.setFont(new Font("Arial", Font.PLAIN, Math.max(12, fontTitleSize - 4)));
+	        lblUserId.setAlignmentX(Component.CENTER_ALIGNMENT);
+	        
+	        sidebar.add(Box.createRigidArea(new Dimension(0,40)));
+	        sidebar.add(lblUserName);
+	        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
+	        sidebar.add(lblUserId);
+	        sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        lblUserName = new JLabel(userName);
-        lblUserName.setFont(new Font("Arial", Font.BOLD, nameFontSize));
-        lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        // Fetch User ID from file
-        String userId = "N/A";
-        try {
-            java.util.List<String> lines = java.nio.file.Files.readAllLines(java.nio.file.Paths.get("data", "account.txt"));
-            for (String line : lines) {
-                String[] parts = line.split(",");
-                if (parts.length > 1 && parts[1].trim().equals(userName)) {
-                    userId = parts[0].trim();
-                    break;
-                }
-            }
-        } catch (java.io.IOException e) {
-            System.err.println("Could not read account.txt");
-        }
-        
-        lblUserId = new JLabel("ID: " + userId);
-        lblUserId.setFont(new Font("Arial", Font.PLAIN, idFontSize));
-        lblUserId.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        sidebar.add(Box.createRigidArea(new Dimension(0, 40)));
-        sidebar.add(lblUserName);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(lblUserId);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
+	        // Navigation Buttons 
+	        addNavButton("Manage Account", new Color(255, 249, 230));
+	        addNavButton("Appointments", new Color(168, 208, 239));
+	        addNavButton("Services & Pricing", new Color(168, 208, 239));
+	        addNavButton("Payments", new Color(168, 208, 239));
+	        
+	        if (role.equalsIgnoreCase("Admin")) {
+	            addNavButton("Reports & Analytics", new Color(168,208,239));
+	        }
+	        
+	        addNavButton("Feedback", new Color(168,208,239));
+	        
+	        sidebar.add(Box.createVerticalGlue());
 
-        // Navigation Buttons 
-        addNavButton("Manage Account", new Color(255, 249, 230));
-        addNavButton("Appointments", new Color(168, 208, 239));
-        addNavButton("Services & Pricing", new Color(168, 208, 239));
-        addNavButton("Payments", new Color(168, 208, 239));
-        
-        if (role.equalsIgnoreCase("Admin")) {
-            addNavButton("Reports & Analytics", new Color(168, 208, 239));
-        }
-        
-        addNavButton("Feedback", new Color(168, 208, 239));
-        sidebar.add(Box.createVerticalGlue());
-        addNavButton("Logout", new Color(255, 204, 204)); 
-        
-        JScrollPane sidebarScroll = new JScrollPane(sidebar);
-        sidebarScroll.setBorder(null);
-        sidebarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+	        addNavButton("Logout", new Color(255, 204, 204)); 
+	        
+	        JScrollPane sidebarScroll = new JScrollPane(sidebar);
+	        sidebarScroll.setBorder(null);
+	        sidebarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+	        sidebarScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        // 2. Main Content Area
-        contentPanel = new JPanel();
-        contentPanel.setLayout(new BorderLayout());
-        contentPanel.setBackground(Color.WHITE);
-        
-        JLabel welcomeMsg = new JLabel("Welcome to APU Automotive Service Centre", SwingConstants.LEFT);
-        int welcomeFontSize = Math.max(24, (int) (screenSize.width * 0.025));
-        welcomeMsg.setFont(new Font("Arial", Font.BOLD, welcomeFontSize)); 
-        welcomeMsg.setBorder(new EmptyBorder(30, 50, 0, 20));
-        
-        contentPanel.add(welcomeMsg, BorderLayout.NORTH);
+	        // 2. Main Content Area
+	        contentPanel = new JPanel();
+	        contentPanel.setLayout(new BorderLayout());
+	        contentPanel.setBackground(Color.WHITE);
+	        
+	        JLabel welcomeMsg = new JLabel("Welcome to APU Automotive Service Centre", SwingConstants.LEFT);
+	        int welcomeFontSize = Math.max(20, Math.min(36, (int)(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.025)));
+	        welcomeMsg.setFont(new Font("Arial", Font.BOLD, welcomeFontSize)); 
+	        
+	        welcomeMsg.setBorder(new EmptyBorder(30,50,0,20));
+	        contentPanel.add(welcomeMsg, BorderLayout.NORTH);
 
-        add(sidebarScroll, BorderLayout.WEST);
-        
-        JScrollPane contentScroll = new JScrollPane(contentPanel);
-        contentScroll.setBorder(null);
-        add(contentScroll, BorderLayout.CENTER);
-    }
+	        add(sidebarScroll, BorderLayout.WEST);
+	        
+	        JScrollPane contentScroll = new JScrollPane(contentPanel);
+	        contentScroll.setBorder(null);
+	        add(contentScroll, BorderLayout.CENTER);
+	    }
 
-    private void addNavButton(String text, Color bgColor) {
-        JButton btn = new JButton(text);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
-        // Font size scales with screen width
-        int btnFontSize = Math.max(13, (int) (screenSize.width * 0.011));
-        btn.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
+	private void addNavButton(String text, Color bgColor) {
+		JButton btn = new JButton(text);
 
-        btn.setBackground(bgColor);
-        btn.setForeground(Color.BLACK);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		// Responsive button font
+		int btnFontSize = Math.max(14, Math.min(20, (int)(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.015)));
+		btn.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
 
-        // Button sizing: Fill the sidebar width nicely
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        btn.setPreferredSize(new Dimension(180, 45));
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btn.setBackground(bgColor);
+		btn.setForeground(Color.BLACK);
+		btn.setFocusPainted(false);
 
-        btn.addActionListener(e -> {
-            if (text.equals("Logout")) {
-                // Assuming LoginPage class exists
-                // new LoginPage().setVisible(true);
-                dispose();
-            } else {
-                System.out.println("Navigating to: " + text);
-            }
-        });
+		// Make buttons fill width but have fixed height
+		Dimension btnSize = new Dimension(Integer.MAX_VALUE, 60);
+		btn.setMaximumSize(btnSize);
+		btn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        sidebar.add(btn);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 15)));
-    }
+		btn.addActionListener(e -> {
+			if (text.equals("Logout")) {
+				new LoginPage().setVisible(true);
+				dispose();
+			} else {
+				System.out.println("Navigating to: " + text);
+			}
+		});
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new HomePage("Admin", "JOHN DOE").setVisible(true));
-    }
+		sidebar.add(btn);
+		sidebar.add(Box.createRigidArea(new Dimension(0, 15)));
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(() -> new HomePage("Admin", "JOHN DOE").setVisible(true));
+	}
 }
