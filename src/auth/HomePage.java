@@ -35,6 +35,7 @@ public class HomePage extends JFrame {
 	        }
 
 	        setExtendedState(JFrame.MAXIMIZED_BOTH);
+	        setMinimumSize(new Dimension(800, 600));
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setLocationRelativeTo(null);
 	        setLayout(new BorderLayout());
@@ -43,12 +44,18 @@ public class HomePage extends JFrame {
 	        sidebar = new JPanel();
 	        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
 	        sidebar.setBackground(new Color(211, 238, 252)); 
-	        sidebar.setPreferredSize(new Dimension(350, 1000));
+	        
+	        // Responsive sidebar width
+	        int sWidth = (int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.2);
+	        sWidth = Math.max(200, Math.min(sWidth, 350));
+	        sidebar.setPreferredSize(new Dimension(sWidth, 0));
 	        sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
 	        // User Profile Section
 	        lblUserName = new JLabel(userName);
-	        lblUserName.setFont(new Font("Arial", Font.BOLD, 22));
+	        // Responsive font
+	        int fontTitleSize = Math.max(16, (int)(sWidth * 0.08)); 
+	        lblUserName.setFont(new Font("Arial", Font.BOLD, fontTitleSize));
 	        lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        
 	        String userId = "";
@@ -66,7 +73,7 @@ public class HomePage extends JFrame {
 	        }
 	        
 	        lblUserId = new JLabel(userId);
-	        lblUserId.setFont(new Font("Arial", Font.PLAIN, 18));
+	        lblUserId.setFont(new Font("Arial", Font.PLAIN, Math.max(12, fontTitleSize - 4)));
 	        lblUserId.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        
 	        sidebar.add(Box.createRigidArea(new Dimension(0,40)));
@@ -90,6 +97,11 @@ public class HomePage extends JFrame {
 	        sidebar.add(Box.createVerticalGlue());
 
 	        addNavButton("Logout", new Color(255, 204, 204)); 
+	        
+	        JScrollPane sidebarScroll = new JScrollPane(sidebar);
+	        sidebarScroll.setBorder(null);
+	        sidebarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+	        sidebarScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 	        // 2. Main Content Area
 	        contentPanel = new JPanel();
@@ -97,29 +109,33 @@ public class HomePage extends JFrame {
 	        contentPanel.setBackground(Color.WHITE);
 	        
 	        JLabel welcomeMsg = new JLabel("Welcome to APU Automotive Service Centre", SwingConstants.LEFT);
-	        welcomeMsg.setFont(new Font("Arial", Font.BOLD, 36)); 
+	        int welcomeFontSize = Math.max(20, Math.min(36, (int)(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.025)));
+	        welcomeMsg.setFont(new Font("Arial", Font.BOLD, welcomeFontSize)); 
 	        
 	        welcomeMsg.setBorder(new EmptyBorder(30,50,0,20));
 	        contentPanel.add(welcomeMsg, BorderLayout.NORTH);
 
-	        add(sidebar, BorderLayout.WEST);
-	        add(contentPanel, BorderLayout.CENTER);
+	        add(sidebarScroll, BorderLayout.WEST);
+	        
+	        JScrollPane contentScroll = new JScrollPane(contentPanel);
+	        contentScroll.setBorder(null);
+	        add(contentScroll, BorderLayout.CENTER);
 	    }
 
 	private void addNavButton(String text, Color bgColor) {
 		JButton btn = new JButton(text);
 
-		// Fixed: Added missing closing parenthesis
-		btn.setFont(new Font("Arial", Font.PLAIN, 20));
+		// Responsive button font
+		int btnFontSize = Math.max(14, Math.min(20, (int)(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width * 0.015)));
+		btn.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
 
 		btn.setBackground(bgColor);
 		btn.setForeground(Color.BLACK);
 		btn.setFocusPainted(false);
 
-		Dimension btnSize = new Dimension(300, 60);
-		btn.setPreferredSize(btnSize);
+		// Make buttons fill width but have fixed height
+		Dimension btnSize = new Dimension(Integer.MAX_VALUE, 60);
 		btn.setMaximumSize(btnSize);
-		btn.setMinimumSize(btnSize);
 		btn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		btn.addActionListener(e -> {
