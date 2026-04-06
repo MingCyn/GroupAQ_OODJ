@@ -14,27 +14,15 @@ public class HomePage extends JFrame {
 	        this.userRole = role; 
 	        setTitle("APU Automotive Service Centre");
 
-	        // Try classpath resource first, then fallback to common filesystem locations
-	        Image logoImg = null;
-	        java.net.URL logoUrl = getClass().getResource("/images/logo.png");
-	        if (logoUrl != null) {
-	            logoImg = new ImageIcon(logoUrl).getImage();
-	        } else {
-	            java.io.File f = new java.io.File("images/logo.png");
-	            if (f.exists()) {
-	                logoImg = new ImageIcon(f.getAbsolutePath()).getImage();
-	            } else {
-	                f = new java.io.File("src/images/logo.png");
-	                if (f.exists()) {
-	                    logoImg = new ImageIcon(f.getAbsolutePath()).getImage();
-	                }
-	            }
-	        }
-	        if (logoImg != null) {
-	            this.setIconImage(logoImg);
-	        }
+	        ImageIcon logo = new ImageIcon(getClass().getResource("/images/logo.png"));
 
-	        setSize(1800, 1000);
+
+	     this.setIconImage(logo.getImage());
+	        // Responsive sizing: use screen size instead of a fixed size
+	        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	        // Set the frame to the full screen size and maximize it
+	        setSize(screenSize);
+	        setExtendedState(JFrame.MAXIMIZED_BOTH);
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setLocationRelativeTo(null);
 	        setLayout(new BorderLayout());
@@ -43,12 +31,18 @@ public class HomePage extends JFrame {
 	        sidebar = new JPanel();
 	        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
 	        sidebar.setBackground(new Color(211, 238, 252)); 
-	        sidebar.setPreferredSize(new Dimension(350, 1000));
+	        // Make sidebar width a percentage of the screen width so it scales
+	        int sidebarWidth = Math.max(220, (int) (screenSize.width * 0.22));
+	        sidebar.setPreferredSize(new Dimension(sidebarWidth, screenSize.height));
 	        sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
 	        // User Profile Section
+	        // Scale fonts based on screen width to keep readability across sizes
+	        int nameFontSize = Math.max(16, (int) (screenSize.width * 0.018));
+	        int idFontSize = Math.max(12, (int) (screenSize.width * 0.012));
+
 	        lblUserName = new JLabel(userName);
-	        lblUserName.setFont(new Font("Arial", Font.BOLD, 22));
+	        lblUserName.setFont(new Font("Arial", Font.BOLD, nameFontSize));
 	        lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        
 	        String userId = "";
@@ -66,7 +60,7 @@ public class HomePage extends JFrame {
 	        }
 	        
 	        lblUserId = new JLabel(userId);
-	        lblUserId.setFont(new Font("Arial", Font.PLAIN, 18));
+	        lblUserId.setFont(new Font("Arial", Font.PLAIN, idFontSize));
 	        lblUserId.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        
 	        sidebar.add(Box.createRigidArea(new Dimension(0,40)));
@@ -97,7 +91,9 @@ public class HomePage extends JFrame {
 	        contentPanel.setBackground(Color.WHITE);
 	        
 	        JLabel welcomeMsg = new JLabel("Welcome to APU Automotive Service Centre", SwingConstants.LEFT);
-	        welcomeMsg.setFont(new Font("Arial", Font.BOLD, 36)); 
+	        // Scale welcome font larger for different screens
+	        int welcomeFontSize = Math.max(20, (int) (screenSize.width * 0.03));
+	        welcomeMsg.setFont(new Font("Arial", Font.BOLD, welcomeFontSize)); 
 	        
 	        welcomeMsg.setBorder(new EmptyBorder(30,50,0,20));
 	        contentPanel.add(welcomeMsg, BorderLayout.NORTH);
@@ -110,13 +106,20 @@ public class HomePage extends JFrame {
 		JButton btn = new JButton(text);
 
 		// Fixed: Added missing closing parenthesis
-		btn.setFont(new Font("Arial", Font.PLAIN, 20));
+		// Compute sizes dynamically from the sidebar width and screen size
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int sidebarWidth = sidebar.getPreferredSize().width;
+		int btnWidth = Math.max(160, (int) (sidebarWidth * 0.85));
+		int btnHeight = Math.max(40, (int) (screenSize.height * 0.06));
+
+		int btnFontSize = Math.max(12, (int) (screenSize.width * 0.0125));
+		btn.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
 
 		btn.setBackground(bgColor);
 		btn.setForeground(Color.BLACK);
 		btn.setFocusPainted(false);
 
-		Dimension btnSize = new Dimension(300, 60);
+		Dimension btnSize = new Dimension(btnWidth, btnHeight);
 		btn.setPreferredSize(btnSize);
 		btn.setMaximumSize(btnSize);
 		btn.setMinimumSize(btnSize);
