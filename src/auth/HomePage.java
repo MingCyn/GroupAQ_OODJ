@@ -142,6 +142,38 @@ public class HomePage extends JFrame {
 			if (text.equals("Logout")) {
 				new LoginPage().setVisible(true);
 				dispose();
+			} else if (text.equals("Appointments")) {
+				contentPanel.removeAll();
+				String detectedRole = userRole; // Default to the role passed to HomePage
+
+				// Read account.txt to verify role (assuming role is column 4 / index 3)
+				try {
+					java.util.List<String> lines = java.nio.file.Files
+							.readAllLines(java.nio.file.Paths.get("data", "account.txt"));
+					for (String line : lines) {
+						String[] parts = line.split(",");
+						if (parts.length >= 4 && parts[1].trim().equalsIgnoreCase(lblUserName.getText().trim())) {
+							detectedRole = parts[3].trim();
+							break;
+						}
+					}
+				} catch (java.io.IOException ex) {
+					ex.printStackTrace();
+				}
+
+				// Show CreateAppointmentPage strictly for Customer, else for Staff show
+				// AdminAppointment
+				if (detectedRole.equalsIgnoreCase("Customer")) {
+					contentPanel.add(new CustomerAppointment(), BorderLayout.CENTER);
+				} else if (detectedRole.equalsIgnoreCase("Admin") || detectedRole.equalsIgnoreCase("CounterStaff")
+						|| detectedRole.equalsIgnoreCase("Technician")) {
+					contentPanel.add(new AdminAppointment(), BorderLayout.CENTER);
+				} else {
+					// Fallback
+					contentPanel.add(new AdminAppointment(), BorderLayout.CENTER);
+				}
+				contentPanel.revalidate();
+				contentPanel.repaint();
 			} else {
 				System.out.println("Navigating to: " + text);
 			}
