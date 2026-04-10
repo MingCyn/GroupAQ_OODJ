@@ -8,56 +8,53 @@ import java.net.URL;
 
 public class CustomerAppointment extends JPanel {
 
+    private JTextField fullNameField;
+    private JTextField emailField;
+    private JTextField contactNumberField;
+    private JTextField carModelField;
+    private JTextField carPlateField;
+    private JTextField serviceAddOnField;
+    private JTextField remarksField;
+
     public CustomerAppointment() {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        // A wrapper panel to constrain the maximum width and keep it centered
-        JPanel wrapperPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        wrapperPanel.setBackground(Color.WHITE);
-
-        // Main content container
         JPanel mainContainer = new JPanel();
         mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
         mainContainer.setBackground(Color.WHITE);
         mainContainer.setBorder(new EmptyBorder(20, 30, 20, 30));
-        mainContainer.setPreferredSize(new Dimension(900, 800));
 
-        // 1. Header Section
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(Color.WHITE);
-        headerPanel.setMaximumSize(new Dimension(850, 50));
-        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        add(new JScrollPane(mainContainer), BorderLayout.CENTER);
 
+        // ================= HEADER =================
         JLabel titleLabel = new JLabel("Appointment Creation");
-        titleLabel.setFont(new Font("Arial", Font.PLAIN, 28));
-        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JSeparator separator = new JSeparator();
-        separator.setForeground(Color.GRAY);
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(Color.WHITE);
-        titlePanel.add(titleLabel, BorderLayout.NORTH);
-        titlePanel.add(separator, BorderLayout.SOUTH);
+        mainContainer.add(titleLabel);
+        mainContainer.add(Box.createVerticalStrut(5));
+        mainContainer.add(separator);
+        mainContainer.add(Box.createVerticalStrut(15));
 
-        headerPanel.add(titlePanel, BorderLayout.CENTER);
-        mainContainer.add(headerPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        // 2. Top Info Section (Image + Contact Info)
-        JPanel topInfoPanel = new JPanel(new BorderLayout(20, 0));
+        // ================= TOP INFO =================
+        JPanel topInfoPanel = new JPanel(new GridBagLayout());
         topInfoPanel.setBackground(Color.WHITE);
-        topInfoPanel.setMaximumSize(new Dimension(850, 250));
         topInfoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        topInfoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180)); // limit height
 
-        // Top Left: Image
-        JLabel imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(450, 220));
-        imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // optional frame for visibility
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 0; // prevent stretching
 
-        // Load Logo Image
+        // LEFT: IMAGE
+        JLabel imageLabel = new JLabel("", SwingConstants.CENTER);
+        imageLabel.setPreferredSize(new Dimension(250, 300));
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
         Image logoImg = null;
         URL logoUrl = getClass().getResource("/images/logo.png");
         if (logoUrl != null) {
@@ -70,153 +67,181 @@ public class CustomerAppointment extends JPanel {
         }
 
         if (logoImg != null) {
-            Image scaledImg = logoImg.getScaledInstance(450, 220, java.awt.Image.SCALE_SMOOTH);
+            Image scaledImg = logoImg.getScaledInstance(250, 300, Image.SCALE_SMOOTH);
             imageLabel.setIcon(new ImageIcon(scaledImg));
-            imageLabel.setBorder(null); // remove border if image is found
         } else {
-            imageLabel.setText("[ Logo Image Placeholder ]");
+            imageLabel.setText("[ Logo Image ]");
         }
 
-        topInfoPanel.add(imageLabel, BorderLayout.WEST);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.5;
+        topInfoPanel.add(imageLabel, gbc);
 
-        // Top Right: Contact Info
+        // RIGHT: CONTACT
         JPanel contactPanel = new JPanel();
         contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.Y_AXIS));
         contactPanel.setBackground(Color.WHITE);
-        contactPanel.setBorder(new EmptyBorder(10, 20, 10, 10));
 
-        JLabel contactTitle1 = new JLabel("Contact US to book an");
-        contactTitle1.setFont(new Font("Arial", Font.BOLD, 22));
-        JLabel contactTitle2 = new JLabel("Appointment");
-        contactTitle2.setFont(new Font("Arial", Font.BOLD, 22));
+        JLabel c1 = new JLabel("Contact Us to book an");
+        c1.setFont(new Font("Arial", Font.BOLD, 40));
+        JLabel c2 = new JLabel("Appointment");
+        c2.setFont(new Font("Arial", Font.BOLD, 40));
 
-        JLabel subtitle = new JLabel("WhatsApps, Call or Email us at");
-        subtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-        subtitle.setForeground(Color.DARK_GRAY);
+        JLabel sub = new JLabel("WhatsApp, Call or Email us");
+        sub.setForeground(Color.DARK_GRAY);
 
-        // Phone and Email Labels
-        JLabel phoneLabel = new JLabel("\uD83D\uDCDE +(60)127744638"); // Phone Emoji as icon replacement
-        phoneLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        JLabel phone = new JLabel("📞 +(60)127744638");
+        phone.setFont(new Font("Arial", Font.PLAIN, 18));
+        JLabel email = new JLabel("✉ @car8service@gmail.com");
+        email.setFont(new Font("Arial", Font.PLAIN, 18));
 
-        JLabel emailLabel = new JLabel("\u2709 @car8service@gmail.com"); // Envelope Emoji as icon replacement
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-
-        contactPanel.add(contactTitle1);
-        contactPanel.add(contactTitle2);
-        contactPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        contactPanel.add(subtitle);
-        contactPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        contactPanel.add(phoneLabel);
-        contactPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        contactPanel.add(emailLabel);
-
-        topInfoPanel.add(contactPanel, BorderLayout.CENTER);
-
-        mainContainer.add(topInfoPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 30)));
-
-        // 3. Online Appointment Section
-        JLabel makeApptLabel = new JLabel("Make an online appointment");
-        makeApptLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        makeApptLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(makeApptLabel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Banner Button
-        JLabel bookBanner = new JLabel("Book your Service", SwingConstants.CENTER);
-        bookBanner.setOpaque(true);
-        bookBanner.setBackground(new Color(193, 230, 252));
-        bookBanner.setFont(new Font("Arial", Font.PLAIN, 16));
-        bookBanner.setMaximumSize(new Dimension(850, 40));
-        bookBanner.setPreferredSize(new Dimension(850, 40));
-        bookBanner.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // Slightly rounded corners effect (using empty border just for spacing)
-        bookBanner.setBorder(new EmptyBorder(10, 0, 10, 0));
-        mainContainer.add(bookBanner);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        // 4. Form Section
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 40, 0));
-        formPanel.setBackground(Color.WHITE);
-        formPanel.setMaximumSize(new Dimension(850, 250));
-        formPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // Left Column of Form
-        JPanel leftCol = new JPanel(new GridBagLayout());
-        leftCol.setBackground(Color.WHITE);
-        GridBagConstraints gbcLeft = new GridBagConstraints();
-        gbcLeft.insets = new Insets(10, 10, 10, 10);
-        gbcLeft.fill = GridBagConstraints.HORIZONTAL;
-        gbcLeft.anchor = GridBagConstraints.WEST;
-
-        addFormField(leftCol, gbcLeft, 0, "Full Name", new JTextField(15));
-        addFormField(leftCol, gbcLeft, 1, "Email:", new JTextField(15));
-        addFormField(leftCol, gbcLeft, 2, "Contact Number:", new JTextField(15));
-        addFormField(leftCol, gbcLeft, 3, "Car Models", new JTextField(15));
-        addFormField(leftCol, gbcLeft, 4, "Car Plate Number:", new JTextField(15));
-
-        // Create Top Right Container Structure
-        JPanel rightCol = new JPanel(new GridBagLayout());
-        rightCol.setBackground(Color.WHITE);
-        GridBagConstraints gbcRight = new GridBagConstraints();
-        gbcRight.insets = new Insets(10, 10, 10, 10);
-        gbcRight.fill = GridBagConstraints.HORIZONTAL;
-        gbcRight.anchor = GridBagConstraints.WEST;
-
-        addFormField(rightCol, gbcRight, 0, "Select type of Services:",
-                new JComboBox<>(new String[] { "", "Normal Service", "Major Service" }));
-        addFormField(rightCol, gbcRight, 1, "Service add on:", new JTextField(15));
-        addFormField(rightCol, gbcRight, 2, "Others Remarks:", new JTextField(15));
-
-        // Custom appointment slot field for right col
-        gbcRight.gridy = 3;
-        gbcRight.gridx = 0;
-        gbcRight.weightx = 0.3;
-        JLabel slotLabel = new JLabel("Appointment Slots:");
-        slotLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        rightCol.add(slotLabel, gbcRight);
-
-        gbcRight.gridx = 1;
-        gbcRight.weightx = 0.7;
-        JButton checkSlotBtn = new JButton("Check available time slot");
-        checkSlotBtn.setBackground(new Color(60, 140, 210));
-        checkSlotBtn.setForeground(Color.WHITE);
-        checkSlotBtn.setFocusPainted(false);
-        checkSlotBtn.setFont(new Font("Arial", Font.PLAIN, 12));
-        checkSlotBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // This button can be used to navigate to AppointmentTimeSlot later
-        rightCol.add(checkSlotBtn, gbcRight);
-
-        // Push right column up so fields align with left
-        gbcRight.gridy = 4;
-        gbcRight.weighty = 1.0;
-        rightCol.add(Box.createGlue(), gbcRight);
-
-        formPanel.add(leftCol);
-        formPanel.add(rightCol);
-
-        mainContainer.add(formPanel);
-
-        wrapperPanel.add(mainContainer);
-        add(wrapperPanel, BorderLayout.CENTER);
-    }
-
-    private void addFormField(JPanel panel, GridBagConstraints gbc, int row, String labelText, JComponent inputComp) {
-        gbc.gridy = row;
-
-        gbc.gridx = 0;
-        gbc.weightx = 0.4;
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Arial", Font.BOLD, 12));
-        panel.add(label, gbc);
+        contactPanel.add(c1);
+        contactPanel.add(c2);
+        contactPanel.add(Box.createVerticalStrut(5));
+        contactPanel.add(sub);
+        contactPanel.add(Box.createVerticalStrut(10));
+        contactPanel.add(phone);
+        contactPanel.add(Box.createVerticalStrut(5));
+        contactPanel.add(email);
 
         gbc.gridx = 1;
-        gbc.weightx = 0.6;
-        if (inputComp instanceof JTextField) {
-            ((JTextField) inputComp).setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        gbc.weightx = 0.5;
+        topInfoPanel.add(contactPanel, gbc);
+
+        mainContainer.add(topInfoPanel);
+        mainContainer.add(Box.createVerticalStrut(10)); // reduce space after top panel
+
+        // ================= BANNER =================
+        JLabel banner = new JLabel("Book your Service", SwingConstants.CENTER);
+        banner.setOpaque(true);
+        banner.setBackground(new Color(193, 230, 252));
+        banner.setBorder(new EmptyBorder(12, 10, 12, 10));
+        banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        banner.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        mainContainer.add(banner);
+        mainContainer.add(Box.createVerticalStrut(5)); // reduced gap
+
+        // ================= FORM =================
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        GridBagConstraints f = new GridBagConstraints();
+        f.insets = new Insets(6, 10, 6, 10);
+        f.fill = GridBagConstraints.HORIZONTAL;
+        f.weightx = 1;
+        f.weighty = 0; // prevent extra vertical spacing
+        f.anchor = GridBagConstraints.NORTH; // align at top
+
+        int row = 0;
+
+        // Add Full Name and Service Add-on on the same row
+        fullNameField = new JTextField();
+        serviceAddOnField = new JTextField();
+        row = addField(formPanel, f, row, "Full Name", fullNameField, "Service Add-on (Optional)", serviceAddOnField);
+        
+        // Continue with remaining fields
+        emailField = new JTextField();
+        remarksField = new JTextField();
+        row = addField(formPanel, f, row, "Email", emailField, "Remarks", remarksField);
+        
+        // Create "Check Available TimeSlots" button with action listener
+        contactNumberField = new JTextField();
+        JButton checkSlotBtn = new JButton("Check Available TimeSlots");
+        checkSlotBtn.addActionListener(e -> navigateToCustomerTimeSlotPage());
+        row = addField(formPanel, f, row, "Contact Number", contactNumberField, "Slot", checkSlotBtn);
+        
+        // Add Car Model field (left side only)
+        f.gridy = row;
+        f.gridx = 0;
+        formPanel.add(new JLabel("Car Model"), f);
+        f.gridx = 1;
+        carModelField = new JTextField();
+        formPanel.add(carModelField, f);
+        row++;
+
+        // Last row
+        f.gridy = row;
+        f.gridx = 0;
+        formPanel.add(new JLabel("Car Plate"), f);
+
+        f.gridx = 1;
+        carPlateField = new JTextField();
+        formPanel.add(carPlateField, f);
+
+        // Add filler to push content to top
+        f.gridy = row + 1;
+        f.gridx = 0;
+        f.weighty = 1.0;
+        f.fill = GridBagConstraints.BOTH;
+        formPanel.add(Box.createVerticalGlue(), f);
+
+        mainContainer.add(formPanel);
+    }
+
+    private int addField(JPanel panel, GridBagConstraints f, int row,
+            String label1, JComponent field1,
+            String label2, JComponent field2) {
+
+        f.gridy = row;
+
+        f.gridx = 0;
+        panel.add(new JLabel(label1), f);
+
+        f.gridx = 1;
+        panel.add(field1, f);
+
+        f.gridx = 2;
+        panel.add(new JLabel(label2), f);
+
+        f.gridx = 3;
+        panel.add(field2, f);
+
+        return row + 1;
+    }
+    
+    /**
+     * Navigates from CustomerAppointment to CustomerTimeSlotPage
+     * Captures and passes form data
+     */
+    private void navigateToCustomerTimeSlotPage() {
+        // Validate that all fields are filled
+        if (fullNameField.getText().trim().isEmpty() || 
+            emailField.getText().trim().isEmpty() ||
+            contactNumberField.getText().trim().isEmpty() ||
+            carModelField.getText().trim().isEmpty() ||
+            carPlateField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        panel.add(inputComp, gbc);
+
+        // Create AppointmentData object with form values
+        // Set optional fields as NULL if empty
+        String serviceAddOn = serviceAddOnField.getText().trim();
+        String remarks = remarksField.getText().trim();
+        
+        AppointmentData appointmentData = new AppointmentData(
+            fullNameField.getText().trim(),
+            emailField.getText().trim(),
+            contactNumberField.getText().trim(),
+            carModelField.getText().trim(),
+            carPlateField.getText().trim(),
+            serviceAddOn.isEmpty() ? "NULL" : serviceAddOn,
+            remarks.isEmpty() ? "NULL" : remarks
+        );
+
+        // Get current logged-in user from parent HomePage
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame instanceof HomePage) {
+            HomePage homePage = (HomePage) frame;
+            appointmentData.setCustomerID(homePage.getUserId());
+            homePage.showPage(new CustomerTimeSlotPage(appointmentData));
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new HomePage("Customer", "JOHN DOE").setVisible(true));
     }
 }

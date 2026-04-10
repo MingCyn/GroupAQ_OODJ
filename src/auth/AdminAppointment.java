@@ -1,257 +1,497 @@
 package auth;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-public class AdminAppointment extends JPanel {
-    private LocalDate currentWeekStart;
-    private LocalDate selectedWeekStart;
-    private LocalDate selectedDate = null; 
+/**
+ * AdminAppointment class extends StaffAppointmentPage to implement
+ * the inheritance OOP pillar. Both Admin and CounterStaff roles
+ * access the same appointment booking functionality through this class.
+ * 
+ * This class inherits all common appointment functionality from
+ * StaffAppointmentPage,
+ * allowing code reuse and maintaining a single source of truth for appointment
+ * UI.
+ */
+
+public class AdminAppointment extends StaffAppointmentPage {
+
+    public AdminAppointment(String userRole) {
+        super(userRole);
+    }
 
     public AdminAppointment() {
-        setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
-        currentWeekStart = LocalDate.now();
-        currentWeekStart = currentWeekStart.minusDays(currentWeekStart.getDayOfWeek().getValue() - 1);
-        selectedWeekStart = currentWeekStart;
-        JPanel wrapperPanel = new JPanel(new GridBagLayout());
-        wrapperPanel.setBackground(Color.WHITE);
-        JPanel mainContainer = new JPanel();
-        mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
-        mainContainer.setBackground(Color.WHITE);
-        mainContainer.setBorder(new EmptyBorder(25, 35, 25, 35));
-        mainContainer.setMaximumSize(new Dimension(1300, 1250));
-        mainContainer.setPreferredSize(new Dimension(1300, 1250));
-
-        for (Component comp : mainContainer.getComponents()) {
-            if (comp instanceof JComponent) {
-                ((JComponent) comp).setAlignmentX(Component.LEFT_ALIGNMENT);
-            }
-        }
-
-        // 1. Header Section
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(Color.WHITE);
-        headerPanel.setMaximumSize(new Dimension(1230, 65));
-        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel titleLabel = new JLabel("Appointment Creation");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
-        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
-
-        JSeparator separator = new JSeparator();
-        separator.setForeground(Color.LIGHT_GRAY);
-
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(Color.WHITE);
-        titlePanel.add(titleLabel, BorderLayout.NORTH);
-        titlePanel.add(separator, BorderLayout.SOUTH);
-
-        headerPanel.add(titlePanel, BorderLayout.CENTER);
-        mainContainer.add(headerPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
-
-        // 3. Days Selection Section (declare early for use in navigation listeners)
-        JPanel daysPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 25));
-        daysPanel.setBackground(Color.WHITE);
-        initializeDayButtons(daysPanel);
-
-        // 2. Week Navigation Section
-        JPanel navPanel = new JPanel(new BorderLayout());
-        navPanel.setBackground(Color.WHITE);
-        navPanel.setMaximumSize(new Dimension(1230, 55));
-        JButton currentWeekBtn = createStyledButton("Current Week", new Color(171, 209, 237), Color.BLACK);
-        currentWeekBtn.setPreferredSize(new Dimension(130, 48));
-        currentWeekBtn.setFont(new Font("Arial", Font.BOLD, 13));
-        JLabel weekLabel = new JLabel(getFormattedWeekLabel(selectedWeekStart), SwingConstants.CENTER);
-        weekLabel.setFont(new Font("Arial", Font.BOLD, 27));
-        JPanel arrowsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        arrowsPanel.setBackground(Color.WHITE);
-        JButton prevBtn = createStyledButton("<", new Color(171, 209, 237), Color.BLACK);
-        prevBtn.setPreferredSize(new Dimension(48, 45));
-        prevBtn.setFont(new Font("Arial", Font.BOLD, 16));
-        JButton nextBtn = createStyledButton(">", new Color(171, 209, 237), Color.BLACK);
-        nextBtn.setPreferredSize(new Dimension(48, 45));
-        nextBtn.setFont(new Font("Arial", Font.BOLD, 16));
-        arrowsPanel.add(prevBtn);
-        arrowsPanel.add(nextBtn);
-        navPanel.add(currentWeekBtn, BorderLayout.WEST);
-        navPanel.add(weekLabel, BorderLayout.CENTER);
-        navPanel.add(arrowsPanel, BorderLayout.EAST);
-        navPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        currentWeekBtn.addActionListener(e -> {
-            selectedWeekStart = currentWeekStart;
-            updateWeekDisplay(weekLabel);
-            updateDayButtons(daysPanel);
-        });
-
-        prevBtn.addActionListener(e -> {
-            selectedWeekStart = selectedWeekStart.minusWeeks(1);
-            updateWeekDisplay(weekLabel);
-            updateDayButtons(daysPanel);
-        });
-
-        nextBtn.addActionListener(e -> {
-            selectedWeekStart = selectedWeekStart.plusWeeks(1);
-            updateWeekDisplay(weekLabel);
-            updateDayButtons(daysPanel);
-        });
-
-        mainContainer.add(navPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 18)));
-        
-        daysPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(daysPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        // 4. Normal Services Section
-        JLabel normalLabel = new JLabel("Normal Services");
-        normalLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        normalLabel.setForeground(new Color(120, 120, 120));
-        normalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(normalLabel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        JPanel normalServicesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 18));
-        normalServicesPanel.setBackground(Color.WHITE);
-        String[] normalTimes = {
-                "8:00 - 9:00", "9:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00"
-        };
-        for (String time : normalTimes) {
-            JButton timeBtn = createStyledButton(time, new Color(220, 220, 220), Color.BLACK);
-            timeBtn.setPreferredSize(new Dimension(175, 55));
-            timeBtn.setFont(new Font("Arial", Font.PLAIN, 14));
-            normalServicesPanel.add(timeBtn);
-        }
-        normalServicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(normalServicesPanel);
-
-        // 5. Major Services Section
-        JLabel majorLabel = new JLabel("Major Services");
-        majorLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        majorLabel.setForeground(new Color(120, 120, 120));
-        majorLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(majorLabel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        JPanel majorServicesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 18));
-        majorServicesPanel.setBackground(Color.WHITE);
-        String[] majorTimes = { "8:00 - 11:00", "9:00 - 12:00", "10:00 - 13:00", "14:00 - 17:00", "15:00 - 18:00", "16:00 - 19:00", "17:00 - 20:00" };
-        for (String time : majorTimes) {
-            JButton timeBtn = createStyledButton(time, new Color(220, 220, 220), Color.BLACK);
-            timeBtn.setPreferredSize(new Dimension(175, 55));
-            timeBtn.setFont(new Font("Arial", Font.PLAIN, 14));
-            majorServicesPanel.add(timeBtn);
-        }
-        majorServicesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(majorServicesPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 0)));
-
-
-        // 6. Action Buttons
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 25));
-        actionPanel.setBackground(Color.WHITE);
-        JButton cancelBtn = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
-        cancelBtn.setPreferredSize(new Dimension(220, 60));
-        cancelBtn.setFont(new Font("Arial", Font.BOLD, 16));
-        JButton confirmBtn = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
-        confirmBtn.setPreferredSize(new Dimension(220, 60));
-        confirmBtn.setFont(new Font("Arial", Font.BOLD, 16));
-        actionPanel.add(cancelBtn);
-        actionPanel.add(confirmBtn);
-        actionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContainer.add(actionPanel);
-        wrapperPanel.add(mainContainer);
-        add(wrapperPanel, BorderLayout.CENTER);
-
-        // 7. Footer Notice
-        JPanel footerPanel = new JPanel();
-        footerPanel.setBackground(Color.WHITE);
-        footerPanel.setBorder(new EmptyBorder(0, 35, 25, 35));
-
-        JLabel noticeLabel = new JLabel("IMPORTANT NOTICE ~ All of the worker and technician work from 8am to 7pm",
-                SwingConstants.CENTER);
-        noticeLabel.setOpaque(true);
-        noticeLabel.setBackground(new Color(171, 209, 237));
-        noticeLabel.setBorder(new EmptyBorder(15, 20, 15, 20));
-        noticeLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        noticeLabel.setPreferredSize(new Dimension(1230, 50));
-        footerPanel.add(noticeLabel);
-        add(footerPanel, BorderLayout.SOUTH);
+        super("Admin");
     }
 
-    private String getFormattedWeekLabel(LocalDate weekStart) {
-        LocalDate weekEnd = weekStart.plusDays(6);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
-        return "Week of " + weekStart.format(formatter);
+    @Override
+    protected boolean shouldShowActionButtons() {
+        return false; // Admin appointment has no action buttons
     }
 
-    private void initializeDayButtons(JPanel daysPanel) {
-        updateDayButtons(daysPanel);
+    @Override
+    protected String getPageTitle() {
+        return "Create Appointment For Walk-in/Phone-in Customers";
     }
 
-    private void updateDayButtons(JPanel daysPanel) {
-        daysPanel.removeAll();
-        
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = selectedWeekStart.plusDays(i);
-            String dayName = date.getDayOfWeek().toString().substring(0, 3).toUpperCase();
-            String dayNumber = String.valueOf(date.getDayOfMonth());
-            String buttonText = "<html><center>" + dayNumber + "<br>" + dayName + "</center></html>";          
-            boolean isSelected = (selectedDate != null && selectedDate.equals(date));
-            Color bgColor = isSelected ? new Color(50, 130, 200) : new Color(171, 209, 237);
-            Color fgColor = isSelected ? Color.WHITE : Color.BLACK;
-            JButton dayBtn = createStyledButton(buttonText, bgColor, fgColor);
-            dayBtn.setPreferredSize(new Dimension(115, 80));
-            dayBtn.setFont(new Font("Arial", Font.BOLD, 15));
-            LocalDate clickedDate = date;
-            dayBtn.addActionListener(e -> {
-                selectedDate = clickedDate;
-                updateDayButtons(daysPanel);
+    /**
+     * Override createServiceSection to add click handlers to time buttons
+     */
+    @Override
+    protected JPanel createServiceSection(String title, String[] times) {
+        JLabel sectionLabel = new JLabel(title);
+        sectionLabel.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+        sectionLabel.setForeground(new java.awt.Color(120, 120, 120));
+        sectionLabel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+        JPanel servicePanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 16, 18));
+        servicePanel.setBackground(java.awt.Color.WHITE);
+
+        String serviceType = title.equals("Normal Services") ? "Normal" : "Major";
+
+        for (String time : times) {
+            JButton timeBtn = createStyledButton(time, new java.awt.Color(220, 220, 220), java.awt.Color.BLACK);
+            timeBtn.setPreferredSize(new java.awt.Dimension(175, 55));
+            timeBtn.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+
+            // Add listener to show appointment dialog
+            timeBtn.addActionListener(e -> {
+                String[] timeParts = time.split(" - ");
+                String startTime = timeParts[0].trim();
+                String endTime = timeParts[1].trim();
+                showAppointmentDialog(serviceType, startTime, endTime);
             });
-            daysPanel.add(dayBtn);
+
+            servicePanel.add(timeBtn);
         }
-        daysPanel.revalidate();
-        daysPanel.repaint();
+
+        servicePanel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        servicePanel.setMaximumSize(new java.awt.Dimension(1230, 175));
+
+        JPanel containerPanel = new JPanel();
+        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.Y_AXIS));
+        containerPanel.setBackground(java.awt.Color.WHITE);
+        containerPanel.add(sectionLabel);
+        containerPanel.add(Box.createRigidArea(new java.awt.Dimension(0, 3)));
+        containerPanel.add(servicePanel);
+
+        return containerPanel;
     }
 
-    private void updateWeekDisplay(JLabel weekLabel) {
-        weekLabel.setText(getFormattedWeekLabel(selectedWeekStart));
+    /**
+     * Show a dialog to collect appointment details from admin/counter staff
+     */
+    private void showAppointmentDialog(String serviceType, String startTime, String endTime) {
+        JDialog dialog = new JDialog((java.awt.Frame) SwingUtilities.getWindowAncestor(this), "Appointment Creation", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(500, 550);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new java.awt.GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridwidth = 1;
+        gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.anchor = java.awt.GridBagConstraints.WEST;
+        gbc.insets = new java.awt.Insets(0, 0, 10, 0);
+
+        int row = 0;
+
+        // Title
+        JLabel titleLabel = new JLabel("Appointment Creation");
+        titleLabel.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+        gbc.gridy = row++;
+        panel.add(titleLabel, gbc);
+
+        gbc.insets = new java.awt.Insets(0, 0, 5, 0);
+
+        // Full Name
+        JLabel fullNameLabel = new JLabel("Full Name");
+        gbc.gridy = row++;
+        panel.add(fullNameLabel, gbc);
+        
+        JTextField fullNameField = new JTextField();
+        setPlaceholder(fullNameField, "e.g. John Doe");
+        gbc.gridy = row++;
+        panel.add(fullNameField, gbc);
+
+        // Contact Number
+        JLabel contactLabel = new JLabel("Contact Number");
+        gbc.gridy = row++;
+        panel.add(contactLabel, gbc);
+        
+        JTextField contactField = new JTextField();
+        setPlaceholder(contactField, "e.g. +60123456789");
+        gbc.gridy = row++;
+        panel.add(contactField, gbc);
+
+        // Car Model
+        JLabel carModelLabel = new JLabel("Car Model");
+        gbc.gridy = row++;
+        panel.add(carModelLabel, gbc);
+        
+        JTextField carModelField = new JTextField();
+        setPlaceholder(carModelField, "e.g. Toyota Camry");
+        gbc.gridy = row++;
+        panel.add(carModelField, gbc);
+
+        // Car Plate
+        JLabel carPlateLabel = new JLabel("Car Plate");
+        gbc.gridy = row++;
+        panel.add(carPlateLabel, gbc);
+        
+        JTextField carPlateField = new JTextField();
+        setPlaceholder(carPlateField, "e.g. VCG8888");
+        gbc.gridy = row++;
+        panel.add(carPlateField, gbc);
+
+        // Service Add-on (Optional)
+        JLabel serviceAddOnLabel = new JLabel("Services Add-on (Optional)");
+        gbc.gridy = row++;
+        panel.add(serviceAddOnLabel, gbc);
+        
+        JTextField serviceAddOnField = new JTextField();
+        setPlaceholder(serviceAddOnField, "e.g. Tyre Alignment");
+        gbc.gridy = row++;
+        panel.add(serviceAddOnField, gbc);
+
+        // Remarks
+        JLabel remarksLabel = new JLabel("Remarks (Optional)");
+        gbc.gridy = row++;
+        panel.add(remarksLabel, gbc);
+        
+        JTextArea remarksArea = new JTextArea(3, 20);
+        setPlaceholder(remarksArea, "e.g. Customer requested additional cleaning");
+        JScrollPane remarksScroll = new JScrollPane(remarksArea);
+        gbc.gridy = row++;
+        gbc.weighty = 1.0;
+        gbc.fill = java.awt.GridBagConstraints.BOTH;
+        panel.add(remarksScroll, gbc);
+
+        // Buttons
+        gbc.weighty = 0;
+        gbc.fill = java.awt.GridBagConstraints.NONE;
+        gbc.anchor = java.awt.GridBagConstraints.CENTER;
+        gbc.insets = new java.awt.Insets(15, 0, 0, 0);
+        gbc.gridy = row++;
+        
+        JPanel buttonPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 20, 5));
+        
+        // Cancel button - outlined style
+        JButton cancelBtn = createOutlinedButton("Cancel");
+        cancelBtn.setPreferredSize(new java.awt.Dimension(120, 45));
+        
+        // Confirm button - filled style
+        JButton confirmBtn = createFilledButton("Confirm");
+        confirmBtn.setPreferredSize(new java.awt.Dimension(120, 45));
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        confirmBtn.addActionListener(e -> {
+            // Validate required fields
+            String fullNameText = fullNameField.getText().trim();
+            String contactText = contactField.getText().trim();
+            String carModelText = carModelField.getText().trim();
+            String carPlateText = carPlateField.getText().trim();
+            String serviceAddOnText = serviceAddOnField.getText().trim();
+            String remarksText = remarksArea.getText().trim();
+
+            // Check for empty values (not placeholders, but actual empty)
+            if (fullNameText.isEmpty() || fullNameText.equals("e.g. John Doe") ||
+                contactText.isEmpty() || contactText.equals("e.g. Anderson Lau") ||
+                carModelText.isEmpty() || carModelText.equals("e.g. Toyota") ||
+                carPlateText.isEmpty() || carPlateText.equals("e.g. VCG8888")) {
+                
+                JOptionPane.showMessageDialog(dialog, 
+                    "Please enter all the required field to create appointment", 
+                    "Validation Error", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Optional fields - replace with NULL if empty or contains placeholder
+            String finalServiceAddOn = serviceAddOnText.isEmpty() || serviceAddOnText.equals("e.g. Tyre Alignment") ? "NULL" : serviceAddOnText;
+            String finalRemarks = remarksText.isEmpty() || remarksText.equals("e.g. Customer requested additional cleaning") ? "NULL" : remarksText;
+
+            // Save appointment
+            boolean success = saveAdminAppointment(
+                fullNameText,
+                contactText,
+                carModelText,
+                carPlateText,
+                finalServiceAddOn,
+                finalRemarks,
+                serviceType,
+                startTime,
+                endTime
+            );
+
+            if (success) {
+                JOptionPane.showMessageDialog(dialog, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Failed to create appointment", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        buttonPanel.add(cancelBtn);
+        buttonPanel.add(confirmBtn);
+        panel.add(buttonPanel, gbc);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
     }
 
-    private JButton createStyledButton(String text, Color bgColor, Color fgColor) {
-        return new RoundedButton(text, bgColor, fgColor);
+    /**
+     * Save admin-created appointment to Appointment.txt
+     */
+    private boolean saveAdminAppointment(String fullName, String contactNumber, String carModel, 
+                                        String carPlate, String serviceAddOn, String remarks, 
+                                        String serviceType, String startTime, String endTime) {
+        try {
+            java.nio.file.Path filePath = java.nio.file.Paths.get("data", "Appointment.txt");
+            java.nio.file.Files.createDirectories(filePath.getParent());
+
+            // Check if file exists and has header
+            boolean fileExists = java.nio.file.Files.exists(filePath);
+            boolean hasHeader = false;
+            
+            if (fileExists) {
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(filePath);
+                if (!lines.isEmpty() && lines.get(0).startsWith("#")) {
+                    hasHeader = true;
+                }
+            }
+
+            // Generate next Appointment ID
+            String appointmentID = generateNextAppointmentID(filePath);
+
+            // Get current date
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy");
+            String bookingDate = today.format(dateFormatter);
+
+            // Format: AppointmentID, CustomerID, Username, fullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, BookingDate, StartTime, EndTime, Price, Status
+            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                appointmentID,
+                "NULL", // CustomerID (NULL for admin booking)
+                "NULL", // Username (NULL for admin booking)
+                fullName,
+                serviceType,
+                contactNumber,
+                carModel,
+                carPlate,
+                serviceAddOn,
+                remarks,
+                "NULL", // Technician In-Charge
+                bookingDate,
+                startTime,
+                endTime,
+                "NULL", // Price
+                "pending" // Status
+            );
+
+            // If file doesn't exist or doesn't have header, add header first
+            if (!fileExists || !hasHeader) {
+                String header = "#appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,booking date,start time,end time,price,status\n";
+                
+                if (fileExists && !hasHeader) {
+                    // File exists but no header - read existing content and rewrite with header
+                    java.util.List<String> existingLines = java.nio.file.Files.readAllLines(filePath);
+                    java.util.List<String> newContent = new java.util.ArrayList<>();
+                    newContent.add(header.trim());
+                    newContent.addAll(existingLines);
+                    java.nio.file.Files.write(filePath, newContent);
+                } else {
+                    // File doesn't exist - create with header
+                    java.nio.file.Files.write(filePath, header.getBytes(), 
+                        java.nio.file.StandardOpenOption.CREATE);
+                }
+            }
+
+            // Append the new appointment record
+            java.nio.file.Files.write(filePath, (appointmentRecord + "\n").getBytes(), 
+                java.nio.file.StandardOpenOption.APPEND);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    private class RoundedButton extends JButton {
+    /**
+     * Generate the next Appointment ID
+     */
+    private String generateNextAppointmentID(java.nio.file.Path filePath) {
+        try {
+            if (!java.nio.file.Files.exists(filePath)) {
+                return "APTID0001";
+            }
+
+            java.util.List<String> lines = java.nio.file.Files.readAllLines(filePath);
+            if (lines.isEmpty()) {
+                return "APTID0001";
+            }
+
+            // Find the last non-header line
+            String lastLine = "";
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (!lines.get(i).startsWith("#")) {
+                    lastLine = lines.get(i);
+                    break;
+                }
+            }
+
+            if (lastLine.isEmpty()) {
+                return "APTID0001";
+            }
+
+            String lastID = lastLine.split(",")[0];
+            int idNumber = Integer.parseInt(lastID.substring(5)); // Remove "APTID" prefix
+            idNumber++;
+            return String.format("APTID%04d", idNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "APTID0001";
+        }
+    }
+
+    /**
+     * Set placeholder text for JTextField
+     */
+    private void setPlaceholder(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(new java.awt.Color(150, 150, 150));
+        
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(new java.awt.Color(0, 0, 0));
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(new java.awt.Color(150, 150, 150));
+                }
+            }
+        });
+    }
+
+    /**
+     * Set placeholder text for JTextArea
+     */
+    private void setPlaceholder(JTextArea area, String placeholder) {
+        area.setText(placeholder);
+        area.setForeground(new java.awt.Color(150, 150, 150));
+        
+        area.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (area.getText().equals(placeholder)) {
+                    area.setText("");
+                    area.setForeground(new java.awt.Color(0, 0, 0));
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (area.getText().isEmpty()) {
+                    area.setText(placeholder);
+                    area.setForeground(new java.awt.Color(150, 150, 150));
+                }
+            }
+        });
+    }
+
+    /**
+     * Create outlined button (Cancel style)
+     */
+    private JButton createOutlinedButton(String text) {
+        return new RoundedOutlinedButton(text);
+    }
+
+    /**
+     * Create filled button (Confirm style)
+     */
+    private JButton createFilledButton(String text) {
+        return new RoundedFilledButton(text);
+    }
+
+    /**
+     * Inner class for rounded outlined button
+     */
+    private class RoundedOutlinedButton extends JButton {
         private static final int ARC_WIDTH = 15;
         private static final int ARC_HEIGHT = 15;
-        public RoundedButton(String text, Color bgColor, Color fgColor) {
+
+        public RoundedOutlinedButton(String text) {
             super(text);
-            setBackground(bgColor);
-            setForeground(fgColor);
+            setBackground(java.awt.Color.WHITE);
+            setForeground(java.awt.Color.BLACK);
             setFocusPainted(false);
-            setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
-            setFont(new Font("Arial", Font.PLAIN, 14));
-            setCursor(new Cursor(Cursor.HAND_CURSOR));
+            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+            setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
             setOpaque(false);
             setContentAreaFilled(false);
             setBorderPainted(false);
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
-            g2.setColor(new Color(200, 200, 200));
-            g2.setStroke(new BasicStroke(1));
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Draw border
+            g2.setColor(java.awt.Color.BLACK);
+            g2.setStroke(new java.awt.BasicStroke(2));
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+            
             super.paintComponent(g);
         }
+    }
+
+    /**
+     * Inner class for rounded filled button
+     */
+    private class RoundedFilledButton extends JButton {
+        private static final int ARC_WIDTH = 15;
+        private static final int ARC_HEIGHT = 15;
+
+        public RoundedFilledButton(String text) {
+            super(text);
+            setBackground(new java.awt.Color(60, 140, 210));
+            setForeground(java.awt.Color.WHITE);
+            setFocusPainted(false);
+            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+            setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Draw filled background
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+            
+            super.paintComponent(g);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new HomePage("Admin", "AdminAPU").setVisible(true));
     }
 }
