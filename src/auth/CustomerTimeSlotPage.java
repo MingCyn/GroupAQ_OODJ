@@ -182,8 +182,8 @@ public class CustomerTimeSlotPage extends StaffAppointmentPage {
             String appointmentID = generateNextAppointmentID(filePath);
             data.setAppointmentID(appointmentID);
 
-            // Format: AppointmentID, CustomerID, Username, FullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, BookingDate, StartTime, EndTime, Price, Status
-            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            // Format: AppointmentID, CustomerID, Username, FullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, TechnicianID, BookingDate, StartTime, EndTime, Price, Status
+            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                 appointmentID,
                 data.getCustomerID(),
                 username,
@@ -195,6 +195,7 @@ public class CustomerTimeSlotPage extends StaffAppointmentPage {
                 data.getServiceAddOn(),
                 data.getRemarks(),
                 "NULL", // Technician In-Charge
+                "NULL", // TechnicianID
                 data.getBookingDate(),
                 data.getStartTime(),
                 data.getEndTime(),

@@ -242,6 +242,6 @@ public class CustomerAppointment extends JPanel {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new HomePage("Customer", "JOHN DOE").setVisible(true));
+        SwingUtilities.invokeLater(() -> new HomePage("Customer", "kerjinn").setVisible(true));
     }
 }

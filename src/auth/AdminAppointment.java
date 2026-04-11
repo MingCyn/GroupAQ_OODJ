@@ -272,8 +272,8 @@ public class AdminAppointment extends StaffAppointmentPage {
             java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy");
             String bookingDate = today.format(dateFormatter);
 
-            // Format: AppointmentID, CustomerID, Username, fullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, BookingDate, StartTime, EndTime, Price, Status
-            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            // Format: AppointmentID, CustomerID, Username, fullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, TechnicianID, BookingDate, StartTime, EndTime, Price, Status
+            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                 appointmentID,
                 "NULL", // CustomerID (NULL for admin booking)
                 "NULL", // Username (NULL for admin booking)
@@ -285,6 +285,7 @@ public class AdminAppointment extends StaffAppointmentPage {
                 serviceAddOn,
                 remarks,
                 "NULL", // Technician In-Charge
+                "NULL", // TechnicianID
                 bookingDate,
                 startTime,
                 endTime,
@@ -294,7 +295,7 @@ public class AdminAppointment extends StaffAppointmentPage {
 
             // If file doesn't exist or doesn't have header, add header first
             if (!fileExists || !hasHeader) {
-                String header = "#appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,booking date,start time,end time,price,status\n";
+                String header = "#appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,technicianID,booking date,start time,end time,price,status\n";
                 
                 if (fileExists && !hasHeader) {
                     // File exists but no header - read existing content and rewrite with header
