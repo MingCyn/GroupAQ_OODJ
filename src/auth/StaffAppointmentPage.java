@@ -155,23 +155,35 @@ public abstract class StaffAppointmentPage extends JPanel {
         navPanel.add(arrowsPanel, BorderLayout.EAST);
         navPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+     // Helper to update previous button state
+        Runnable updatePrevButtonState = () -> {
+            boolean isCurrentWeek = selectedWeekStart.equals(currentWeekStart);
+            prevBtn.setEnabled(!isCurrentWeek);
+        };
+
         currentWeekBtn.addActionListener(e -> {
             selectedWeekStart = currentWeekStart;
             updateWeekDisplay(weekLabel);
             updateDayButtons(daysPanel);
+            updatePrevButtonState.run();
         });
 
         prevBtn.addActionListener(e -> {
             selectedWeekStart = selectedWeekStart.minusWeeks(1);
             updateWeekDisplay(weekLabel);
             updateDayButtons(daysPanel);
+            updatePrevButtonState.run();
         });
 
         nextBtn.addActionListener(e -> {
             selectedWeekStart = selectedWeekStart.plusWeeks(1);
             updateWeekDisplay(weekLabel);
             updateDayButtons(daysPanel);
+            updatePrevButtonState.run();
         });
+
+        // Set initial state
+        updatePrevButtonState.run();
 
         return navPanel;
     }

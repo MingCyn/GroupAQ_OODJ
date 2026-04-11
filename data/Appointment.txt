@@ -1,0 +1,2 @@
+#appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,technicianID,booking date,start time,end time,price,status
+APTID0001,NULL,NULL,ff,Normal,ff,ff,ff,ff,fff,NULL,NULL,11 April 2026,17:00,18:00,NULL,pending
