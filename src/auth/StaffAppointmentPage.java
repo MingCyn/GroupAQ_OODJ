@@ -42,179 +42,270 @@ public abstract class StaffAppointmentPage extends JPanel {
      * This method is called during construction to build all UI components.
      */
     protected void initializeUI() {
-        JPanel wrapperPanel = new JPanel(new GridBagLayout());
-        wrapperPanel.setBackground(Color.WHITE);
         JPanel mainContainer = new JPanel();
         mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
         mainContainer.setBackground(Color.WHITE);
-        mainContainer.setBorder(new EmptyBorder(15, 30, 15, 30));
-        mainContainer.setPreferredSize(new Dimension(1400, 950));
+        mainContainer.setBorder(new EmptyBorder(20, 40, 20, 40));
 
-        for (Component comp : mainContainer.getComponents()) {
-            if (comp instanceof JComponent) {
-                ((JComponent) comp).setAlignmentX(Component.LEFT_ALIGNMENT);
-            }
-        }
+        add(new JScrollPane(mainContainer), BorderLayout.CENTER);
 
-        // 1. Header Section
+        // HEADER
         mainContainer.add(createHeaderPanel());
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        // 2. Days Selection Section
-        JPanel daysPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 15));
+        // WEEK NAV
+        JPanel daysPanel = new JPanel(new GridLayout(1, 7, 8, 8));
+//        JPanel daysPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         daysPanel.setBackground(Color.WHITE);
+
+        mainContainer.add(createWeekNavigationPanel(daysPanel));
+        mainContainer.add(daysPanel);
+
         initializeDayButtons(daysPanel);
 
-        // 3. Week Navigation Section
-        mainContainer.add(createWeekNavigationPanel(daysPanel));
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
-
-        daysPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        daysPanel.setMaximumSize(new Dimension(1230, 150));
-        mainContainer.add(daysPanel);
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
-
-        // 4. Normal Services Section
+        // SERVICES
         mainContainer.add(createServiceSection("Normal Services", getNormalServiceTimes()));
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 0)));
-
-        // 5. Major Services Section
         mainContainer.add(createServiceSection("Major Services", getMajorServiceTimes()));
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // 6. Action Buttons
+        // ACTION
         if (shouldShowActionButtons()) {
             mainContainer.add(createActionPanel());
         }
-        mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
 
-        // 7. Footer Notice
+        // FOOTER
         mainContainer.add(createFooterPanel());
-
-        wrapperPanel.add(mainContainer);
-        add(wrapperPanel, BorderLayout.CENTER);
     }
+//    protected void initializeUI() {
+//        JPanel wrapperPanel = new JPanel(new GridBagLayout());
+//        wrapperPanel.setBackground(Color.WHITE);
+//        JPanel mainContainer = new JPanel();
+//        mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
+//        mainContainer.setBackground(Color.WHITE);
+//        mainContainer.setBorder(new EmptyBorder(15, 30, 15, 30));
+//        mainContainer.setPreferredSize(new Dimension(1400, 950));
+//
+//        for (Component comp : mainContainer.getComponents()) {
+//            if (comp instanceof JComponent) {
+//                ((JComponent) comp).setAlignmentX(Component.LEFT_ALIGNMENT);
+//            }
+//        }
+//
+//        // 1. Header Section
+//        mainContainer.add(createHeaderPanel());
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+//
+//        // 2. Days Selection Section
+//        JPanel daysPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 15));
+//        daysPanel.setBackground(Color.WHITE);
+//        initializeDayButtons(daysPanel);
+//
+//        // 3. Week Navigation Section
+//        mainContainer.add(createWeekNavigationPanel(daysPanel));
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
+//
+//        daysPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//        daysPanel.setMaximumSize(new Dimension(1230, 150));
+//        mainContainer.add(daysPanel);
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
+//
+//        // 4. Normal Services Section
+//        mainContainer.add(createServiceSection("Normal Services", getNormalServiceTimes()));
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 0)));
+//
+//        // 5. Major Services Section
+//        mainContainer.add(createServiceSection("Major Services", getMajorServiceTimes()));
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 5)));
+//
+//        // 6. Action Buttons
+//        if (shouldShowActionButtons()) {
+//            mainContainer.add(createActionPanel());
+//        }
+//        mainContainer.add(Box.createRigidArea(new Dimension(0, 25)));
+//
+//        // 7. Footer Notice
+//        mainContainer.add(createFooterPanel());
+//
+//        wrapperPanel.add(mainContainer);
+//        add(wrapperPanel, BorderLayout.CENTER);
+//    }
 
     protected boolean shouldShowActionButtons() {
         return true;
     }
 
     protected JPanel createHeaderPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel(getPageTitle());
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
-        headerPanel.setMaximumSize(new Dimension(1230, 55));
         headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-        JLabel titleLabel = new JLabel(getPageTitle());
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setBorder(new EmptyBorder(0, 0, 5, 0));
+        title.setFont(new Font("Arial", Font.BOLD, 24));
 
-        JSeparator separator = new JSeparator();
-        separator.setForeground(Color.LIGHT_GRAY);
+        panel.add(title, BorderLayout.WEST);
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(Color.WHITE);
-        titlePanel.add(titleLabel, BorderLayout.NORTH);
-        titlePanel.add(separator, BorderLayout.SOUTH);
-
-        headerPanel.add(titlePanel, BorderLayout.CENTER);
-        return headerPanel;
+        return panel;
     }
 
     protected String getPageTitle() {
         return "Select Your Timeslot For Your Appointment";
     }
 
+//    protected JPanel createWeekNavigationPanel(JPanel daysPanel) {
+//        JPanel navPanel = new JPanel(new BorderLayout());
+//        navPanel.setBackground(Color.WHITE);
+//        navPanel.setMaximumSize(new Dimension(1230, 65));
+//
+//        JButton currentWeekBtn = createStyledButton("Current Week", new Color(171, 209, 237), Color.BLACK);
+//        currentWeekBtn.setPreferredSize(new Dimension(130, 48));
+//        currentWeekBtn.setFont(new Font("Arial", Font.BOLD, 13));
+//
+//        JLabel weekLabel = new JLabel(getFormattedWeekLabel(selectedWeekStart), SwingConstants.CENTER);
+//        weekLabel.setFont(new Font("Arial", Font.BOLD, 27));
+//
+//        JPanel arrowsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+//        arrowsPanel.setBackground(Color.WHITE);
+//
+//        JButton prevBtn = createStyledButton("<", new Color(171, 209, 237), Color.BLACK);
+//        prevBtn.setPreferredSize(new Dimension(48, 48));
+//        prevBtn.setFont(new Font("Arial", Font.BOLD, 16));
+//
+//        JButton nextBtn = createStyledButton(">", new Color(171, 209, 237), Color.BLACK);
+//        nextBtn.setPreferredSize(new Dimension(48, 48));
+//        nextBtn.setFont(new Font("Arial", Font.BOLD, 16));
+//
+//        arrowsPanel.add(prevBtn);
+//        arrowsPanel.add(nextBtn);
+//        navPanel.add(currentWeekBtn, BorderLayout.WEST);
+//        navPanel.add(weekLabel, BorderLayout.CENTER);
+//        navPanel.add(arrowsPanel, BorderLayout.EAST);
+//        navPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//
+//     // Helper to update previous button state
+//        Runnable updatePrevButtonState = () -> {
+//            boolean isCurrentWeek = selectedWeekStart.equals(currentWeekStart);
+//            prevBtn.setEnabled(!isCurrentWeek);
+//        };
+//
+//        currentWeekBtn.addActionListener(e -> {
+//            selectedWeekStart = currentWeekStart;
+//            updateWeekDisplay(weekLabel);
+//            updateDayButtons(daysPanel);
+//            updatePrevButtonState.run();
+//        });
+//
+//        prevBtn.addActionListener(e -> {
+//            selectedWeekStart = selectedWeekStart.minusWeeks(1);
+//            updateWeekDisplay(weekLabel);
+//            updateDayButtons(daysPanel);
+//            updatePrevButtonState.run();
+//        });
+//
+//        nextBtn.addActionListener(e -> {
+//            selectedWeekStart = selectedWeekStart.plusWeeks(1);
+//            updateWeekDisplay(weekLabel);
+//            updateDayButtons(daysPanel);
+//            updatePrevButtonState.run();
+//        });
+//
+//        // Set initial state
+//        updatePrevButtonState.run();
+//
+//        return navPanel;
+//    }
+    
     protected JPanel createWeekNavigationPanel(JPanel daysPanel) {
-        JPanel navPanel = new JPanel(new BorderLayout());
-        navPanel.setBackground(Color.WHITE);
-        navPanel.setMaximumSize(new Dimension(1230, 65));
 
-        JButton currentWeekBtn = createStyledButton("Current Week", new Color(171, 209, 237), Color.BLACK);
-        currentWeekBtn.setPreferredSize(new Dimension(130, 48));
-        currentWeekBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
 
-        JLabel weekLabel = new JLabel(getFormattedWeekLabel(selectedWeekStart), SwingConstants.CENTER);
-        weekLabel.setFont(new Font("Arial", Font.BOLD, 27));
+        // ===== LEFT: Current Week =====
+        JButton current = createStyledButton("Current Week", new Color(171, 209, 237), Color.BLACK);
+        current.setFont(new Font("Arial", Font.PLAIN, 12));
+        current.setMargin(new Insets(6, 12, 6, 12));
 
-        JPanel arrowsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        arrowsPanel.setBackground(Color.WHITE);
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.add(current);
 
-        JButton prevBtn = createStyledButton("<", new Color(171, 209, 237), Color.BLACK);
-        prevBtn.setPreferredSize(new Dimension(48, 48));
-        prevBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        // ===== CENTER: Week Label =====
+        JLabel label = new JLabel(getFormattedWeekLabel(selectedWeekStart), SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JButton nextBtn = createStyledButton(">", new Color(171, 209, 237), Color.BLACK);
-        nextBtn.setPreferredSize(new Dimension(48, 48));
-        nextBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        // ===== RIGHT: Arrows =====
+        JButton prev = createStyledButton("<", new Color(171, 209, 237), Color.BLACK);
+        JButton next = createStyledButton(">", new Color(171, 209, 237), Color.BLACK);
 
-        arrowsPanel.add(prevBtn);
-        arrowsPanel.add(nextBtn);
-        navPanel.add(currentWeekBtn, BorderLayout.WEST);
-        navPanel.add(weekLabel, BorderLayout.CENTER);
-        navPanel.add(arrowsPanel, BorderLayout.EAST);
-        navPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        prev.setMargin(new Insets(6, 10, 6, 10));
+        next.setMargin(new Insets(6, 10, 6, 10));
 
-     // Helper to update previous button state
-        Runnable updatePrevButtonState = () -> {
-            boolean isCurrentWeek = selectedWeekStart.equals(currentWeekStart);
-            prevBtn.setEnabled(!isCurrentWeek);
-        };
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        rightPanel.setBackground(Color.WHITE);
+        rightPanel.add(prev);
+        rightPanel.add(next);
 
-        currentWeekBtn.addActionListener(e -> {
+        // ===== ADD TO MAIN PANEL =====
+        panel.add(leftPanel, BorderLayout.WEST);
+        panel.add(label, BorderLayout.CENTER);
+        panel.add(rightPanel, BorderLayout.EAST);
+
+        // ===== LOGIC (UNCHANGED) =====
+        Runnable updatePrev = () -> prev.setEnabled(!selectedWeekStart.equals(currentWeekStart));
+
+        current.addActionListener(e -> {
             selectedWeekStart = currentWeekStart;
-            updateWeekDisplay(weekLabel);
+            updateWeekDisplay(label);
             updateDayButtons(daysPanel);
-            updatePrevButtonState.run();
+            updatePrev.run();
         });
 
-        prevBtn.addActionListener(e -> {
+        prev.addActionListener(e -> {
             selectedWeekStart = selectedWeekStart.minusWeeks(1);
-            updateWeekDisplay(weekLabel);
+            updateWeekDisplay(label);
             updateDayButtons(daysPanel);
-            updatePrevButtonState.run();
+            updatePrev.run();
         });
 
-        nextBtn.addActionListener(e -> {
+        next.addActionListener(e -> {
             selectedWeekStart = selectedWeekStart.plusWeeks(1);
-            updateWeekDisplay(weekLabel);
+            updateWeekDisplay(label);
             updateDayButtons(daysPanel);
-            updatePrevButtonState.run();
+            updatePrev.run();
         });
 
-        // Set initial state
-        updatePrevButtonState.run();
-
-        return navPanel;
+        updatePrev.run();
+        return panel;
     }
-
+    
     protected JPanel createServiceSection(String title, String[] times) {
-        JLabel sectionLabel = new JLabel(title);
-        sectionLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        sectionLabel.setForeground(new Color(120, 120, 120));
-        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel servicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 18));
-        servicePanel.setBackground(Color.WHITE);
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(Color.WHITE);
+//        container.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        container.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
+
+        JLabel label = new JLabel(title);
+        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
+
+        JPanel grid = new JPanel(new GridLayout(0, 4, 1, 1));
+        grid.setBackground(Color.WHITE);
+        grid.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
 
         for (String time : times) {
-            JButton timeBtn = createStyledButton(time, new Color(220, 220, 220), Color.BLACK);
-            timeBtn.setPreferredSize(new Dimension(175, 55));
-            timeBtn.setFont(new Font("Arial", Font.PLAIN, 14));
-            servicePanel.add(timeBtn);
+            JButton btn = createStyledButton(time, new Color(230, 230, 230), Color.BLACK);
+            grid.add(btn);
         }
 
-        servicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        servicePanel.setMaximumSize(new Dimension(1230, 175));
+        container.add(label);
+        container.add(Box.createVerticalStrut(8));
+        container.add(grid);
 
-        JPanel containerPanel = new JPanel();
-        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.Y_AXIS));
-        containerPanel.setBackground(Color.WHITE);
-        containerPanel.add(sectionLabel);
-        containerPanel.add(Box.createRigidArea(new Dimension(0, 3)));
-        containerPanel.add(servicePanel);
-
-        return containerPanel;
+        return container;
     }
 
     protected String[] getNormalServiceTimes() {
@@ -231,43 +322,75 @@ public abstract class StaffAppointmentPage extends JPanel {
         };
     }
 
+//    protected JPanel createActionPanel() {
+//        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 5));
+//        actionPanel.setBackground(Color.WHITE);
+//
+//        JButton cancelBtn = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
+//        cancelBtn.setPreferredSize(new Dimension(220, 60));
+//        cancelBtn.setFont(new Font("Arial", Font.BOLD, 16));
+//
+//        JButton confirmBtn = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
+//        confirmBtn.setPreferredSize(new Dimension(220, 60));
+//        confirmBtn.setFont(new Font("Arial", Font.BOLD, 16));
+//
+//        actionPanel.add(cancelBtn);
+//        actionPanel.add(confirmBtn);
+//        actionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//        actionPanel.setMaximumSize(new Dimension(1230, 90));
+//
+//        return actionPanel;
+//    }
+    
     protected JPanel createActionPanel() {
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 5));
-        actionPanel.setBackground(Color.WHITE);
+        JPanel panel = new JPanel(new GridLayout(1, 2, 20, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 50, 20, 50));
 
-        JButton cancelBtn = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
-        cancelBtn.setPreferredSize(new Dimension(220, 60));
-        cancelBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        JButton cancel = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
+        JButton confirm = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
 
-        JButton confirmBtn = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
-        confirmBtn.setPreferredSize(new Dimension(220, 60));
-        confirmBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(cancel);
+        panel.add(confirm);
 
-        actionPanel.add(cancelBtn);
-        actionPanel.add(confirmBtn);
-        actionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        actionPanel.setMaximumSize(new Dimension(1230, 90));
-
-        return actionPanel;
+        return panel;
     }
 
+//    protected JPanel createFooterPanel() {
+//        JPanel footerPanel = new JPanel();
+//        footerPanel.setBackground(Color.WHITE);
+//        footerPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+//
+//        JLabel noticeLabel = new JLabel("IMPORTANT NOTICE ~ All of the worker and technician work from 8am to 7pm",
+//                SwingConstants.CENTER);
+//        noticeLabel.setOpaque(true);
+//        noticeLabel.setBackground(new Color(171, 209, 237));
+//        noticeLabel.setBorder(new EmptyBorder(15, 20, 15, 20));
+//        noticeLabel.setFont(new Font("Arial", Font.BOLD, 14));
+//        noticeLabel.setPreferredSize(new Dimension(1230, 50));
+//        footerPanel.add(noticeLabel);
+//        footerPanel.setMaximumSize(new Dimension(1230, 80));
+//        footerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//
+//        return footerPanel;
+//    }
+    
     protected JPanel createFooterPanel() {
-        JPanel footerPanel = new JPanel();
-        footerPanel.setBackground(Color.WHITE);
-        footerPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
 
-        JLabel noticeLabel = new JLabel("IMPORTANT NOTICE ~ All of the worker and technician work from 8am to 7pm",
-                SwingConstants.CENTER);
-        noticeLabel.setOpaque(true);
-        noticeLabel.setBackground(new Color(171, 209, 237));
-        noticeLabel.setBorder(new EmptyBorder(15, 20, 15, 20));
-        noticeLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        noticeLabel.setPreferredSize(new Dimension(1230, 50));
-        footerPanel.add(noticeLabel);
-        footerPanel.setMaximumSize(new Dimension(1230, 80));
-        footerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel label = new JLabel(
+                "IMPORTANT NOTICE ~ All workers operate from 8am to 7pm",
+                SwingConstants.CENTER
+        );
 
-        return footerPanel;
+        label.setOpaque(true);
+        label.setBackground(new Color(171, 209, 237));
+        label.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        panel.add(label, BorderLayout.CENTER);
+
+        return panel;
     }
 
     protected String getFormattedWeekLabel(LocalDate weekStart) {
@@ -279,29 +402,36 @@ public abstract class StaffAppointmentPage extends JPanel {
         updateDayButtons(daysPanel);
     }
 
-    protected void updateDayButtons(JPanel daysPanel) {
-        daysPanel.removeAll();
+    protected void updateDayButtons(JPanel panel) {
+        panel.removeAll();
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = selectedWeekStart.plusDays(i);
-            String dayName = date.getDayOfWeek().toString().substring(0, 3).toUpperCase();
-            String dayNumber = String.valueOf(date.getDayOfMonth());
-            String buttonText = "<html><center>" + dayNumber + "<br>" + dayName + "</center></html>";
-            boolean isSelected = (selectedDate != null && selectedDate.equals(date));
-            Color bgColor = isSelected ? new Color(50, 130, 200) : new Color(171, 209, 237);
-            Color fgColor = isSelected ? Color.WHITE : Color.BLACK;
-            JButton dayBtn = createStyledButton(buttonText, bgColor, fgColor);
-            dayBtn.setPreferredSize(new Dimension(135, 90));
-            dayBtn.setFont(new Font("Arial", Font.BOLD, 17));
-            LocalDate clickedDate = date;
-            dayBtn.addActionListener(e -> {
-                selectedDate = clickedDate;
-                updateDayButtons(daysPanel);
+
+            String text = "<html><center>" +
+                    date.getDayOfMonth() + "<br>" +
+                    date.getDayOfWeek().toString().substring(0, 3) +
+                    "</center></html>";
+
+            JButton btn = createStyledButton(
+                    text,
+                    selectedDate != null && selectedDate.equals(date)
+                            ? new Color(50, 130, 200)
+                            : new Color(171, 209, 237),
+                    Color.BLACK
+            );
+
+            LocalDate clicked = date;
+            btn.addActionListener(e -> {
+                selectedDate = clicked;
+                updateDayButtons(panel);
             });
-            daysPanel.add(dayBtn);
+
+            panel.add(btn);
         }
-        daysPanel.revalidate();
-        daysPanel.repaint();
+
+        panel.revalidate();
+        panel.repaint();
     }
 
     protected void updateWeekDisplay(JLabel weekLabel) {

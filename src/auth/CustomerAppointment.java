@@ -27,15 +27,32 @@ public class CustomerAppointment extends JPanel {
 
         add(new JScrollPane(mainContainer), BorderLayout.CENTER);
 
-        // ================= HEADER =================
+        // ================= HEADER WITH MY APPOINTMENT BUTTON =================
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        
         JLabel titleLabel = new JLabel("Appointment Creation");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JButton myAppointmentBtn = new JButton("My Appointment");
+        myAppointmentBtn.setPreferredSize(new Dimension(150, 40));
+        myAppointmentBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        myAppointmentBtn.setBackground(new Color(171, 209, 237)); // Light blue color
+        myAppointmentBtn.setForeground(Color.BLACK);
+        myAppointmentBtn.setFocusPainted(false);
+        myAppointmentBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        myAppointmentBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        myAppointmentBtn.addActionListener(e -> navigateToMyAppointment());
+        
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(myAppointmentBtn, BorderLayout.EAST);
+        
+        mainContainer.add(headerPanel);
+        mainContainer.add(Box.createVerticalStrut(5));
 
         JSeparator separator = new JSeparator();
-
-        mainContainer.add(titleLabel);
-        mainContainer.add(Box.createVerticalStrut(5));
         mainContainer.add(separator);
         mainContainer.add(Box.createVerticalStrut(15));
 
@@ -241,7 +258,19 @@ public class CustomerAppointment extends JPanel {
         }
     }
 
+    /**
+     * Navigates from CustomerAppointment to MyAppointment page
+     * Displays all appointments for the logged-in customer
+     */
+    private void navigateToMyAppointment() {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame instanceof HomePage) {
+            HomePage homePage = (HomePage) frame;
+            homePage.showPage(new MyAppointment(homePage.getUserId(), homePage.getUsername()));
+        }
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new HomePage("Customer", "kerjinn").setVisible(true));
+        SwingUtilities.invokeLater(() -> new HomePage("Customer", "sinyi").setVisible(true));
     }
 }

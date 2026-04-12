@@ -164,17 +164,17 @@ public class HomePage extends JFrame {
 					ex.printStackTrace();
 				}
 
-				// Show CustomerAppointment for Customer role, else show AdminAppointment
-				// Both Admin and CounterStaff (staff members) access the same AdminAppointment
-				// through inheritance (OOP pillar implementation)
+				// Show appointment page based on user role
+				// Customer role: CustomerAppointment
+				// Admin & CounterStaff roles: AdminAppointment (shared through inheritance)
+				// Technician role: TechnicianAppointment (separate implementation)
 				if (detectedRole.equalsIgnoreCase("Customer")) {
 					contentPanel.add(new CustomerAppointment(), BorderLayout.CENTER);
-				} else if (detectedRole.equalsIgnoreCase("Admin") || detectedRole.equalsIgnoreCase("CounterStaff")
-						|| detectedRole.equalsIgnoreCase("Technician")) {
-					// Pass the user role to AdminAppointment so it knows which staff member is
-					// accessing
-					// This implements the inheritance OOP principle where different staff roles
-					// can access the same appointment page functionality
+				} else if (detectedRole.equalsIgnoreCase("Technician")) {
+					// Technician has dedicated TechnicianAppointment page
+					contentPanel.add(new TechnicianAppointment(detectedRole), BorderLayout.CENTER);
+				} else if (detectedRole.equalsIgnoreCase("Admin") || detectedRole.equalsIgnoreCase("CounterStaff")) {
+					// Admin and CounterStaff share AdminAppointment through inheritance
 					contentPanel.add(new AdminAppointment(detectedRole), BorderLayout.CENTER);
 				} else {
 					// Fallback with default role
