@@ -50,49 +50,37 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         JPanel mainContainer = new JPanel();
         mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
         mainContainer.setBackground(Color.WHITE);
-        mainContainer.setBorder(new EmptyBorder(20, 30, 10, 30));
+        mainContainer.setBorder(new EmptyBorder(20, 40, 20, 40));
 
         add(new JScrollPane(mainContainer), BorderLayout.CENTER);
 
         // ================= HEADER =================
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(Color.WHITE);
-        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        headerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
-        JLabel titleLabel = new JLabel(getPageTitle());
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-
-        headerPanel.add(titleLabel, BorderLayout.WEST);
-
-        mainContainer.add(headerPanel);
-        mainContainer.add(Box.createVerticalStrut(3));
-
-        JSeparator separator = new JSeparator();
-        mainContainer.add(separator);
-        mainContainer.add(Box.createVerticalStrut(8));
+        mainContainer.add(createHeaderPanel());
 
         // ================= DATE AND TIME SELECTION =================
-
-        // Days Selection Section
+        
+        // Days Selection Section - Will be centered
         JPanel daysPanel = new JPanel(new GridLayout(1, 7, 8, 8));
         daysPanel.setBackground(Color.WHITE);
-        daysPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        daysPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        daysPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         initializeDayButtons(daysPanel);
 
+        // Center wrapper for days panel
+        JPanel daysCenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        daysCenterPanel.setBackground(Color.WHITE);
+        daysCenterPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        daysCenterPanel.add(daysPanel);
+
         // Week Navigation Section
         mainContainer.add(createWeekNavigationPanel(daysPanel));
-        mainContainer.add(Box.createVerticalStrut(2));
-        mainContainer.add(daysPanel);
+        mainContainer.add(daysCenterPanel);
         mainContainer.add(Box.createVerticalStrut(15));
 
         // ================= APPOINTMENT TABLE =================
         createAppointmentTable();
         JScrollPane tableScrollPane = new JScrollPane(appointmentTable);
         tableScrollPane.setBackground(Color.WHITE);
-        tableScrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         
         mainContainer.add(tableScrollPane);
         

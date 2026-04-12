@@ -52,9 +52,8 @@ public abstract class StaffAppointmentPage extends JPanel {
         // HEADER
         mainContainer.add(createHeaderPanel());
 
-        // WEEK NAV
+        // WEEK NAV + DAYS
         JPanel daysPanel = new JPanel(new GridLayout(1, 7, 8, 8));
-//        JPanel daysPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         daysPanel.setBackground(Color.WHITE);
 
         mainContainer.add(createWeekNavigationPanel(daysPanel));
@@ -284,26 +283,45 @@ public abstract class StaffAppointmentPage extends JPanel {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBackground(Color.WHITE);
-//        container.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        container.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
+        JLabel sectionLabel = new JLabel(title);
+        sectionLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JPanel labelWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        labelWrapper.setBackground(Color.WHITE);
+        labelWrapper.add(sectionLabel);
 
-        JLabel label = new JLabel(title);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
-        label.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
+        // ===== GRID PANEL =====
+        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 12, 12)); 
+        // 👆 4 columns fixed = CLEAN ALIGNMENT
 
-        JPanel grid = new JPanel(new GridLayout(0, 4, 1, 1));
-        grid.setBackground(Color.WHITE);
-        grid.setAlignmentX(Component.LEFT_ALIGNMENT); // ⭐ CRITICAL
+        gridPanel.setBackground(Color.WHITE);
+        gridPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         for (String time : times) {
-            JButton btn = createStyledButton(time, new Color(230, 230, 230), Color.BLACK);
-            grid.add(btn);
+
+            JButton btn = createStyledButton(
+                    "<html><center>" + time + "</center></html>",
+                    new Color(235, 235, 235),
+                    Color.BLACK
+            );
+
+            // ✅ SMALL + UNIFORM BUTTON SIZE
+            btn.setPreferredSize(new Dimension(40, 35));
+            btn.setFont(new Font("Arial", Font.PLAIN, 12));
+            btn.setFocusPainted(false);
+
+            btn.addActionListener(e -> {
+                // Default behavior - can be overridden by subclasses
+            });
+
+            gridPanel.add(btn);
         }
 
-        container.add(label);
+        container.add(labelWrapper);
         container.add(Box.createVerticalStrut(8));
-        container.add(grid);
+        container.add(gridPanel);
 
         return container;
     }
@@ -343,9 +361,9 @@ public abstract class StaffAppointmentPage extends JPanel {
 //    }
     
     protected JPanel createActionPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 2, 20, 10));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panel.setBackground(Color.WHITE);
-        panel.setBorder(new EmptyBorder(20, 50, 20, 50));
+        panel.setBorder(new EmptyBorder(10, 0, 10, 0));
 
         JButton cancel = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
         JButton confirm = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
