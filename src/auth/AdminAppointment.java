@@ -1,12 +1,17 @@
 package auth;
 
 import javax.swing.*;
-import java.awt.*;
-import java.nio.file.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+
+/**
+ * AdminAppointment class extends StaffAppointmentPage to implement
+ * the inheritance OOP pillar. Both Admin and CounterStaff roles
+ * access the same appointment booking functionality through this class.
+ * 
+ * This class inherits all common appointment functionality from
+ * StaffAppointmentPage,
+ * allowing code reuse and maintaining a single source of truth for appointment
+ * UI.
+ */
 
 public class AdminAppointment extends StaffAppointmentPage {
 
@@ -20,7 +25,7 @@ public class AdminAppointment extends StaffAppointmentPage {
 
     @Override
     protected boolean shouldShowActionButtons() {
-        return false;
+        return false; // Admin appointment has no action buttons
     }
 
     @Override
@@ -28,325 +33,466 @@ public class AdminAppointment extends StaffAppointmentPage {
         return "Create Appointment For Walk-in/Phone-in Customers";
     }
 
-    // =========================
-    // RESPONSIVE SERVICE SECTION
-    // =========================
+    /**
+     * Override createServiceSection to add click handlers to time buttons
+     */
     @Override
     protected JPanel createServiceSection(String title, String[] times) {
-
-        JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-        container.setBackground(Color.WHITE);
-
         JLabel sectionLabel = new JLabel(title);
-        sectionLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JPanel labelWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        labelWrapper.setBackground(Color.WHITE);
-        labelWrapper.add(sectionLabel);
+        sectionLabel.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+        sectionLabel.setForeground(new java.awt.Color(120, 120, 120));
+        sectionLabel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
-        // ===== GRID PANEL =====
-        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 12, 12)); 
-        // 👆 4 columns fixed = CLEAN ALIGNMENT
-
-        gridPanel.setBackground(Color.WHITE);
-        gridPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        JPanel servicePanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 16, 18));
+        servicePanel.setBackground(java.awt.Color.WHITE);
 
         String serviceType = title.equals("Normal Services") ? "Normal" : "Major";
 
         for (String time : times) {
+            JButton timeBtn = createStyledButton(time, new java.awt.Color(220, 220, 220), java.awt.Color.BLACK);
+            timeBtn.setPreferredSize(new java.awt.Dimension(175, 55));
+            timeBtn.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
 
-            JButton btn = createStyledButton(
-                    "<html><center>" + time + "</center></html>",
-                    new Color(235, 235, 235),
-                    Color.BLACK
-            );
-
-            // ✅ SMALL + UNIFORM BUTTON SIZE
-            btn.setPreferredSize(new Dimension(40, 35));
-            btn.setFont(new Font("Arial", Font.PLAIN, 12));
-            btn.setFocusPainted(false);
-
-            btn.addActionListener(e -> {
-                String[] parts = time.split(" - ");
-                showAppointmentDialog(
-                        serviceType,
-                        parts[0].trim(),
-                        parts[1].trim()
-                );
+            // Add listener to show appointment dialog
+            timeBtn.addActionListener(e -> {
+                String[] timeParts = time.split(" - ");
+                String startTime = timeParts[0].trim();
+                String endTime = timeParts[1].trim();
+                showAppointmentDialog(serviceType, startTime, endTime);
             });
 
-            gridPanel.add(btn);
+            servicePanel.add(timeBtn);
         }
 
-        container.add(labelWrapper);
-        container.add(Box.createVerticalStrut(8));
-        container.add(gridPanel);
+        servicePanel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        servicePanel.setMaximumSize(new java.awt.Dimension(1230, 175));
 
-        return container;
+        JPanel containerPanel = new JPanel();
+        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.Y_AXIS));
+        containerPanel.setBackground(java.awt.Color.WHITE);
+        containerPanel.add(sectionLabel);
+        containerPanel.add(Box.createRigidArea(new java.awt.Dimension(0, 3)));
+        containerPanel.add(servicePanel);
+
+        return containerPanel;
     }
 
-    // =========================
-    // RESPONSIVE DIALOG
-    // =========================
+    /**
+     * Show a dialog to collect appointment details from admin/counter staff
+     */
     private void showAppointmentDialog(String serviceType, String startTime, String endTime) {
+        JDialog dialog = new JDialog((java.awt.Frame) SwingUtilities.getWindowAncestor(this), "Appointment Creation", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(500, 550);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
 
-        JDialog dialog = new JDialog(
-                (Frame) SwingUtilities.getWindowAncestor(this),
-                "Appointment Creation",
-                true
-        );
-
-        dialog.setLayout(new BorderLayout());
-
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new java.awt.GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridwidth = 1;
+        gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = java.awt.GridBagConstraints.WEST;
+        gbc.insets = new java.awt.Insets(0, 0, 10, 0);
 
         int row = 0;
 
-        JLabel title = new JLabel("Appointment Creation");
-        title.setFont(new Font("Arial", Font.BOLD, 16));
+        // Title
+        JLabel titleLabel = new JLabel("Appointment Creation");
+        titleLabel.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
         gbc.gridy = row++;
-        panel.add(title, gbc);
+        panel.add(titleLabel, gbc);
 
-        JTextField fullName = new JTextField();
-        JTextField contact = new JTextField();
-        JTextField carModel = new JTextField();
-        JTextField carPlate = new JTextField();
-        JTextField serviceAddOn = new JTextField();
-        JTextArea remarks = new JTextArea(3, 20);
+        gbc.insets = new java.awt.Insets(0, 0, 5, 0);
 
-        setPlaceholder(fullName, "Full Name");
-        setPlaceholder(contact, "Contact Number");
-        setPlaceholder(carModel, "Car Model");
-        setPlaceholder(carPlate, "Car Plate");
-        setPlaceholder(serviceAddOn, "Service Add-on (Optional)");
-        setPlaceholder(remarks, "Remarks (Optional)");
-
-        panel.add(labeled("Full Name"), next(gbc, row++, panel));
-        panel.add(fullName, next(gbc, row++, panel));
-
-        panel.add(labeled("Contact Number"), next(gbc, row++, panel));
-        panel.add(contact, next(gbc, row++, panel));
-
-        panel.add(labeled("Car Model"), next(gbc, row++, panel));
-        panel.add(carModel, next(gbc, row++, panel));
-
-        panel.add(labeled("Car Plate"), next(gbc, row++, panel));
-        panel.add(carPlate, next(gbc, row++, panel));
-
-        panel.add(labeled("Service Add-on"), next(gbc, row++, panel));
-        panel.add(serviceAddOn, next(gbc, row++, panel));
-
-        panel.add(labeled("Remarks"), next(gbc, row++, panel));
-
+        // Full Name
+        JLabel fullNameLabel = new JLabel("Full Name");
         gbc.gridy = row++;
-        gbc.fill = GridBagConstraints.BOTH;
+        panel.add(fullNameLabel, gbc);
+        
+        JTextField fullNameField = new JTextField();
+        setPlaceholder(fullNameField, "e.g. John Doe");
+        gbc.gridy = row++;
+        panel.add(fullNameField, gbc);
+
+        // Contact Number
+        JLabel contactLabel = new JLabel("Contact Number");
+        gbc.gridy = row++;
+        panel.add(contactLabel, gbc);
+        
+        JTextField contactField = new JTextField();
+        setPlaceholder(contactField, "e.g. +60123456789");
+        gbc.gridy = row++;
+        panel.add(contactField, gbc);
+
+        // Car Model
+        JLabel carModelLabel = new JLabel("Car Model");
+        gbc.gridy = row++;
+        panel.add(carModelLabel, gbc);
+        
+        JTextField carModelField = new JTextField();
+        setPlaceholder(carModelField, "e.g. Toyota Camry");
+        gbc.gridy = row++;
+        panel.add(carModelField, gbc);
+
+        // Car Plate
+        JLabel carPlateLabel = new JLabel("Car Plate");
+        gbc.gridy = row++;
+        panel.add(carPlateLabel, gbc);
+        
+        JTextField carPlateField = new JTextField();
+        setPlaceholder(carPlateField, "e.g. VCG8888");
+        gbc.gridy = row++;
+        panel.add(carPlateField, gbc);
+
+        // Service Add-on (Optional)
+        JLabel serviceAddOnLabel = new JLabel("Services Add-on (Optional)");
+        gbc.gridy = row++;
+        panel.add(serviceAddOnLabel, gbc);
+        
+        JTextField serviceAddOnField = new JTextField();
+        setPlaceholder(serviceAddOnField, "e.g. Tyre Alignment");
+        gbc.gridy = row++;
+        panel.add(serviceAddOnField, gbc);
+
+        // Remarks
+        JLabel remarksLabel = new JLabel("Remarks (Optional)");
+        gbc.gridy = row++;
+        panel.add(remarksLabel, gbc);
+        
+        JTextArea remarksArea = new JTextArea(3, 20);
+        setPlaceholder(remarksArea, "e.g. Customer requested additional cleaning");
+        JScrollPane remarksScroll = new JScrollPane(remarksArea);
+        gbc.gridy = row++;
         gbc.weighty = 1.0;
-        panel.add(new JScrollPane(remarks), gbc);
+        gbc.fill = java.awt.GridBagConstraints.BOTH;
+        panel.add(remarksScroll, gbc);
 
         // Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        gbc.weighty = 0;
+        gbc.fill = java.awt.GridBagConstraints.NONE;
+        gbc.anchor = java.awt.GridBagConstraints.CENTER;
+        gbc.insets = new java.awt.Insets(15, 0, 0, 0);
+        gbc.gridy = row++;
+        
+        JPanel buttonPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 20, 5));
+        
+        // Cancel button - outlined style
+        JButton cancelBtn = createOutlinedButton("Cancel");
+        cancelBtn.setPreferredSize(new java.awt.Dimension(120, 45));
+        
+        // Confirm button - filled style
+        JButton confirmBtn = createFilledButton("Confirm");
+        confirmBtn.setPreferredSize(new java.awt.Dimension(120, 45));
 
-        JButton cancel = createOutlinedButton("Cancel");
-        JButton confirm = createFilledButton("Confirm");
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        confirmBtn.addActionListener(e -> {
+            // Validate required fields
+            String fullNameText = fullNameField.getText().trim();
+            String contactText = contactField.getText().trim();
+            String carModelText = carModelField.getText().trim();
+            String carPlateText = carPlateField.getText().trim();
+            String serviceAddOnText = serviceAddOnField.getText().trim();
+            String remarksText = remarksArea.getText().trim();
 
-        cancel.addActionListener(e -> dialog.dispose());
-
-        confirm.addActionListener(e -> {
-
-            if (isInvalid(fullName, contact, carModel, carPlate)) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Please fill in all required fields",
-                        "Validation Error",
-                        JOptionPane.WARNING_MESSAGE);
+            // Check for empty values (not placeholders, but actual empty)
+            if (fullNameText.isEmpty() || fullNameText.equals("e.g. John Doe") ||
+                contactText.isEmpty() || contactText.equals("e.g. Anderson Lau") ||
+                carModelText.isEmpty() || carModelText.equals("e.g. Toyota") ||
+                carPlateText.isEmpty() || carPlateText.equals("e.g. VCG8888")) {
+                
+                JOptionPane.showMessageDialog(dialog, 
+                    "Please enter all the required field to create appointment", 
+                    "Validation Error", 
+                    JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
+            // Optional fields - replace with NULL if empty or contains placeholder
+            String finalServiceAddOn = serviceAddOnText.isEmpty() || serviceAddOnText.equals("e.g. Tyre Alignment") ? "NULL" : serviceAddOnText;
+            String finalRemarks = remarksText.isEmpty() || remarksText.equals("e.g. Customer requested additional cleaning") ? "NULL" : remarksText;
+
+            // Save appointment
             boolean success = saveAdminAppointment(
-                    fullName.getText().trim(),
-                    contact.getText().trim(),
-                    carModel.getText().trim(),
-                    carPlate.getText().trim(),
-                    serviceAddOn.getText().trim(),
-                    remarks.getText().trim(),
-                    serviceType,
-                    startTime,
-                    endTime
+                fullNameText,
+                contactText,
+                carModelText,
+                carPlateText,
+                finalServiceAddOn,
+                finalRemarks,
+                serviceType,
+                startTime,
+                endTime
             );
 
-            JOptionPane.showMessageDialog(dialog,
-                    success ? "Appointment created!" : "Failed to create appointment");
-
-            if (success) dialog.dispose();
+            if (success) {
+                JOptionPane.showMessageDialog(dialog, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Failed to create appointment", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
-        buttonPanel.add(cancel);
-        buttonPanel.add(confirm);
+        buttonPanel.add(cancelBtn);
+        buttonPanel.add(confirmBtn);
+        panel.add(buttonPanel, gbc);
 
-        dialog.add(panel, BorderLayout.CENTER);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-
-        dialog.pack();
-        dialog.setMinimumSize(new Dimension(420, 500));
-        dialog.setLocationRelativeTo(this);
+        dialog.add(panel);
         dialog.setVisible(true);
     }
 
-    // =========================
-    // VALIDATION
-    // =========================
-    private boolean isInvalid(JTextField a, JTextField b, JTextField c, JTextField d) {
-        return a.getText().trim().isEmpty()
-                || b.getText().trim().isEmpty()
-                || c.getText().trim().isEmpty()
-                || d.getText().trim().isEmpty();
-    }
-
-    // =========================
-    // FILE SAVE (UNCHANGED LOGIC)
-    // =========================
-    private boolean saveAdminAppointment(
-            String fullName, String contactNumber, String carModel,
-            String carPlate, String serviceAddOn, String remarks,
-            String serviceType, String startTime, String endTime) {
-
+    /**
+     * Save admin-created appointment to Appointment.txt
+     */
+    private boolean saveAdminAppointment(String fullName, String contactNumber, String carModel, 
+                                        String carPlate, String serviceAddOn, String remarks, 
+                                        String serviceType, String startTime, String endTime) {
         try {
-            Path filePath = Paths.get("data", "Appointment.txt");
-            Files.createDirectories(filePath.getParent());
+            java.nio.file.Path filePath = java.nio.file.Paths.get("data", "Appointment.txt");
+            java.nio.file.Files.createDirectories(filePath.getParent());
 
+            // Check if file exists and has header
+            boolean fileExists = java.nio.file.Files.exists(filePath);
+            boolean hasHeader = false;
+            
+            if (fileExists) {
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(filePath);
+                if (!lines.isEmpty() && lines.get(0).startsWith("#")) {
+                    hasHeader = true;
+                }
+            }
+
+            // Generate next Appointment ID
             String appointmentID = generateNextAppointmentID(filePath);
 
-            LocalDate today = LocalDate.now();
-            String bookingDate = today.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
+            // Get current date
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy");
+            String bookingDate = today.format(dateFormatter);
 
-            String record = String.join(",",
-                    appointmentID,
-                    "NULL",
-                    "NULL",
-                    fullName,
-                    serviceType,
-                    contactNumber,
-                    carModel,
-                    carPlate,
-                    serviceAddOn,
-                    remarks,
-                    "NULL",
-                    "NULL",
-                    bookingDate,
-                    startTime,
-                    endTime,
-                    "NULL",
-                    "pending"
+            // Format: AppointmentID, CustomerID, Username, fullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, TechnicianID, BookingDate, StartTime, EndTime, Price, Status
+            String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                appointmentID,
+                "NULL", // CustomerID (NULL for admin booking)
+                "NULL", // Username (NULL for admin booking)
+                fullName,
+                serviceType,
+                contactNumber,
+                carModel,
+                carPlate,
+                serviceAddOn,
+                remarks,
+                "NULL", // Technician In-Charge
+                "NULL", // TechnicianID
+                bookingDate,
+                startTime,
+                endTime,
+                "NULL", // Price
+                "pending" // Status
             );
 
-            Files.write(filePath,
-                    (record + "\n").getBytes(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
+            // If file doesn't exist or doesn't have header, add header first
+            if (!fileExists || !hasHeader) {
+                String header = "#appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,technicianID,booking date,start time,end time,price,status\n";
+                
+                if (fileExists && !hasHeader) {
+                    // File exists but no header - read existing content and rewrite with header
+                    java.util.List<String> existingLines = java.nio.file.Files.readAllLines(filePath);
+                    java.util.List<String> newContent = new java.util.ArrayList<>();
+                    newContent.add(header.trim());
+                    newContent.addAll(existingLines);
+                    java.nio.file.Files.write(filePath, newContent);
+                } else {
+                    // File doesn't exist - create with header
+                    java.nio.file.Files.write(filePath, header.getBytes(), 
+                        java.nio.file.StandardOpenOption.CREATE);
+                }
+            }
+
+            // Append the new appointment record
+            java.nio.file.Files.write(filePath, (appointmentRecord + "\n").getBytes(), 
+                java.nio.file.StandardOpenOption.APPEND);
 
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private String generateNextAppointmentID(Path filePath) {
+    /**
+     * Generate the next Appointment ID
+     */
+    private String generateNextAppointmentID(java.nio.file.Path filePath) {
         try {
-            if (!Files.exists(filePath)) return "APTID0001";
+            if (!java.nio.file.Files.exists(filePath)) {
+                return "APTID0001";
+            }
 
-            List<String> lines = Files.readAllLines(filePath);
+            java.util.List<String> lines = java.nio.file.Files.readAllLines(filePath);
+            if (lines.isEmpty()) {
+                return "APTID0001";
+            }
 
+            // Find the last non-header line
+            String lastLine = "";
             for (int i = lines.size() - 1; i >= 0; i--) {
                 if (!lines.get(i).startsWith("#")) {
-                    String lastID = lines.get(i).split(",")[0];
-                    int num = Integer.parseInt(lastID.substring(5));
-                    return String.format("APTID%04d", num + 1);
+                    lastLine = lines.get(i);
+                    break;
                 }
             }
 
+            if (lastLine.isEmpty()) {
+                return "APTID0001";
+            }
+
+            String lastID = lastLine.split(",")[0];
+            int idNumber = Integer.parseInt(lastID.substring(5)); // Remove "APTID" prefix
+            idNumber++;
+            return String.format("APTID%04d", idNumber);
         } catch (Exception e) {
             e.printStackTrace();
+            return "APTID0001";
         }
-        return "APTID0001";
     }
 
-    // =========================
-    // UI HELPERS
-    // =========================
-    private GridBagConstraints next(GridBagConstraints gbc, int row, JPanel panel) {
-        gbc.gridy = row;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weighty = 0;
-        return gbc;
-    }
-
-    private JLabel labeled(String text) {
-        return new JLabel(text);
-    }
-
-    private void setPlaceholder(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(Color.GRAY);
-
+    /**
+     * Set placeholder text for JTextField
+     */
+    private void setPlaceholder(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(new java.awt.Color(150, 150, 150));
+        
         field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
             public void focusGained(java.awt.event.FocusEvent e) {
-                if (field.getText().equals(text)) {
+                if (field.getText().equals(placeholder)) {
                     field.setText("");
-                    field.setForeground(Color.BLACK);
+                    field.setForeground(new java.awt.Color(0, 0, 0));
                 }
             }
 
+            @Override
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (field.getText().isEmpty()) {
-                    field.setText(text);
-                    field.setForeground(Color.GRAY);
+                    field.setText(placeholder);
+                    field.setForeground(new java.awt.Color(150, 150, 150));
                 }
             }
         });
     }
 
-    private void setPlaceholder(JTextArea area, String text) {
-        area.setText(text);
-        area.setForeground(Color.GRAY);
-
+    /**
+     * Set placeholder text for JTextArea
+     */
+    private void setPlaceholder(JTextArea area, String placeholder) {
+        area.setText(placeholder);
+        area.setForeground(new java.awt.Color(150, 150, 150));
+        
         area.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
             public void focusGained(java.awt.event.FocusEvent e) {
-                if (area.getText().equals(text)) {
+                if (area.getText().equals(placeholder)) {
                     area.setText("");
-                    area.setForeground(Color.BLACK);
+                    area.setForeground(new java.awt.Color(0, 0, 0));
                 }
             }
 
+            @Override
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (area.getText().isEmpty()) {
-                    area.setText(text);
-                    area.setForeground(Color.GRAY);
+                    area.setText(placeholder);
+                    area.setForeground(new java.awt.Color(150, 150, 150));
                 }
             }
         });
     }
 
+    /**
+     * Create outlined button (Cancel style)
+     */
     private JButton createOutlinedButton(String text) {
-        return new JButton(text);
+        return new RoundedOutlinedButton(text);
     }
 
+    /**
+     * Create filled button (Confirm style)
+     */
     private JButton createFilledButton(String text) {
-        return new JButton(text);
+        return new RoundedFilledButton(text);
+    }
+
+    /**
+     * Inner class for rounded outlined button
+     */
+    private class RoundedOutlinedButton extends JButton {
+        private static final int ARC_WIDTH = 15;
+        private static final int ARC_HEIGHT = 15;
+
+        public RoundedOutlinedButton(String text) {
+            super(text);
+            setBackground(java.awt.Color.WHITE);
+            setForeground(java.awt.Color.BLACK);
+            setFocusPainted(false);
+            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+            setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Draw border
+            g2.setColor(java.awt.Color.BLACK);
+            g2.setStroke(new java.awt.BasicStroke(2));
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+            
+            super.paintComponent(g);
+        }
+    }
+
+    /**
+     * Inner class for rounded filled button
+     */
+    private class RoundedFilledButton extends JButton {
+        private static final int ARC_WIDTH = 15;
+        private static final int ARC_HEIGHT = 15;
+
+        public RoundedFilledButton(String text) {
+            super(text);
+            setBackground(new java.awt.Color(60, 140, 210));
+            setForeground(java.awt.Color.WHITE);
+            setFocusPainted(false);
+            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+            setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Draw filled background
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+            
+            super.paintComponent(g);
+        }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() ->
-                new HomePage("Admin", "AdminAPU").setVisible(true)
-        );
+        SwingUtilities.invokeLater(() -> new HomePage("Admin", "AdminAPU").setVisible(true));
     }
 }
