@@ -24,13 +24,28 @@ public class AdminAppointment extends StaffAppointmentPage {
     }
 
     @Override
-    protected boolean shouldShowActionButtons() {
-        return false; // Admin appointment has no action buttons
-    }
-
-    @Override
     protected String getPageTitle() {
         return "Create Appointment For Walk-in/Phone-in Customers";
+    }
+
+    /**
+     * Override createActionPanel to show only "View Appointment" button
+     * (without "Confirm Booking" button) for admin appointments
+     */
+    @Override
+    protected JPanel createActionPanel() {
+        JPanel actionPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 40, 5));
+        actionPanel.setBackground(java.awt.Color.WHITE);
+
+        JButton viewAppointmentBtn = createStyledButton("View Appointment", new java.awt.Color(245, 240, 230), java.awt.Color.BLACK);
+        viewAppointmentBtn.setPreferredSize(new java.awt.Dimension(220, 60));
+        viewAppointmentBtn.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+
+        actionPanel.add(viewAppointmentBtn);
+        actionPanel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        actionPanel.setMaximumSize(new java.awt.Dimension(1230, 90));
+
+        return actionPanel;
     }
 
     /**
@@ -55,10 +70,19 @@ public class AdminAppointment extends StaffAppointmentPage {
 
             // Add listener to show appointment dialog
             timeBtn.addActionListener(e -> {
+                // Check if a day is selected first
+                if (selectedDate == null) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Please select a date before choosing a time slot.", 
+                        "No Date Selected", 
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
                 String[] timeParts = time.split(" - ");
                 String startTime = timeParts[0].trim();
                 String endTime = timeParts[1].trim();
-                showAppointmentDialog(serviceType, startTime, endTime);
+                showAppointmentDialog(serviceType, startTime, endTime, selectedDate);
             });
 
             servicePanel.add(timeBtn);
@@ -80,7 +104,7 @@ public class AdminAppointment extends StaffAppointmentPage {
     /**
      * Show a dialog to collect appointment details from admin/counter staff
      */
-    private void showAppointmentDialog(String serviceType, String startTime, String endTime) {
+    private void showAppointmentDialog(String serviceType, String startTime, String endTime, java.time.LocalDate appointmentDate) {
         JDialog dialog = new JDialog((java.awt.Frame) SwingUtilities.getWindowAncestor(this), "Appointment Creation", true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(500, 550);
@@ -224,7 +248,8 @@ public class AdminAppointment extends StaffAppointmentPage {
                 finalRemarks,
                 serviceType,
                 startTime,
-                endTime
+                endTime,
+                appointmentDate
             );
 
             if (success) {
@@ -248,7 +273,7 @@ public class AdminAppointment extends StaffAppointmentPage {
      */
     private boolean saveAdminAppointment(String fullName, String contactNumber, String carModel, 
                                         String carPlate, String serviceAddOn, String remarks, 
-                                        String serviceType, String startTime, String endTime) {
+                                        String serviceType, String startTime, String endTime, java.time.LocalDate appointmentDate) {
         try {
             java.nio.file.Path filePath = java.nio.file.Paths.get("data", "Appointment.txt");
             java.nio.file.Files.createDirectories(filePath.getParent());
@@ -267,10 +292,9 @@ public class AdminAppointment extends StaffAppointmentPage {
             // Generate next Appointment ID
             String appointmentID = generateNextAppointmentID(filePath);
 
-            // Get current date
-            java.time.LocalDate today = java.time.LocalDate.now();
+            // Format appointment date
             java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy");
-            String bookingDate = today.format(dateFormatter);
+            String bookingDate = appointmentDate.format(dateFormatter);
 
             // Format: AppointmentID, CustomerID, Username, fullName, ServiceType, ContactNumber, CarModel, CarPlate, ServiceAddOn, Remarks, TechnicianInCharge, TechnicianID, BookingDate, StartTime, EndTime, Price, Status
             String appointmentRecord = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",

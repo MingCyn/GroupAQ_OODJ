@@ -235,16 +235,11 @@ public abstract class StaffAppointmentPage extends JPanel {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 5));
         actionPanel.setBackground(Color.WHITE);
 
-        JButton cancelBtn = createStyledButton("Return To Page", new Color(245, 240, 230), Color.BLACK);
+        JButton cancelBtn = createStyledButton("View Appointment", new Color(245, 240, 230), Color.BLACK);
         cancelBtn.setPreferredSize(new Dimension(220, 60));
         cancelBtn.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JButton confirmBtn = createStyledButton("Confirm Booking", new Color(60, 140, 210), Color.WHITE);
-        confirmBtn.setPreferredSize(new Dimension(220, 60));
-        confirmBtn.setFont(new Font("Arial", Font.BOLD, 16));
-
         actionPanel.add(cancelBtn);
-        actionPanel.add(confirmBtn);
         actionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         actionPanel.setMaximumSize(new Dimension(1230, 90));
 

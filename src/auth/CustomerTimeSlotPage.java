@@ -19,6 +19,7 @@ public class CustomerTimeSlotPage extends StaffAppointmentPage {
     private String selectedStartTime = null;
     private String selectedEndTime = null;
     private java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy");
+    private javax.swing.JButton previousSelectedButton = null; // Track the previously selected button globally
 
     public CustomerTimeSlotPage(AppointmentData appointmentData) {
         super("Customer");
@@ -58,13 +59,22 @@ public class CustomerTimeSlotPage extends StaffAppointmentPage {
 
             // Add listener to track selected time slot
             timeBtn.addActionListener(e -> {
+                // Reset the previously selected button (across all service types)
+                if (previousSelectedButton != null) {
+                    previousSelectedButton.setBackground(new java.awt.Color(220, 220, 220));
+                    previousSelectedButton.setForeground(java.awt.Color.BLACK);
+                }
+                
                 selectedServiceType = serviceType;
                 String[] timeParts = time.split(" - ");
                 selectedStartTime = timeParts[0].trim();
                 selectedEndTime = timeParts[1].trim();
-                // Visual feedback
+                // Visual feedback - highlight the selected button
                 timeBtn.setBackground(new java.awt.Color(100, 150, 200));
                 timeBtn.setForeground(java.awt.Color.WHITE);
+                
+                // Track this as the currently selected button
+                previousSelectedButton = timeBtn;
             });
 
             servicePanel.add(timeBtn);
