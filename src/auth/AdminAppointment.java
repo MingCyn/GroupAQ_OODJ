@@ -41,6 +41,15 @@ public class AdminAppointment extends StaffAppointmentPage {
         viewAppointmentBtn.setPreferredSize(new java.awt.Dimension(220, 60));
         viewAppointmentBtn.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
 
+        // Add navigation to View Appointment page
+        viewAppointmentBtn.addActionListener(e -> {
+            java.awt.Component frame = SwingUtilities.getWindowAncestor(this);
+            if (frame instanceof HomePage) {
+                HomePage homePage = (HomePage) frame;
+                homePage.showPage(new ViewAppointmentPage());
+            }
+        });
+
         actionPanel.add(viewAppointmentBtn);
         actionPanel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
         actionPanel.setMaximumSize(new java.awt.Dimension(1230, 90));
