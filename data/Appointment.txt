@@ -1,7 +1,8 @@
 #appointmentid,customerid,username,fullname,servicetype,contact number,car model,car plate,service add on,remarks,technician incharge,technicianID,booking date,start time,end time,price,status
 APTID0001,CTM0002,sinyi,Lai sin yi,Normal,ass,as,as,asas,as,NULL,NULL,6 April 2026,11:00,12:00,NULL,History
 APTID0001,CTM0002,sinyi,66,Major,66,66,66,66,66,NULL,NULL,7 April 2026,9:00,12:00,NULL,History
-APTID0002,CTM0002,sinyi,eee,Normal,e,e,e,e,e,tech,TEH0002,8 April 2026,11:00,12:00,NULL,Pending
+APTID0002,CTM0002,sinyi,eee,Normal,e,e,e,e,e,tech,TEH0002,8 April 2026,11:00,12:00,NULL,Completed
 APTID0003,CTM0002,sinyi,tt,Normal,t,t,t,t,t,tech,TEH0002,9 April 2026,10:00,11:00,NULL,Pending
-APTID0004,NULL,NULL,rr,Normal,rr,rr,rr,rr,r,NULL,NULL,12 April 2026,9:00,10:00,NULL,pending
+APTID0004,NULL,NULL,rr,Normal,rr,rr,rr,rr,r,NULL,NULL,12 April 2026,9:00,10:00,NULL,Completed
 APTID0005,NULL,NULL,sdfdf,Normal,sfdsfsf,dsf,dfsfsfs,fsfds,fsfsfs,NULL,NULL,12 April 2026,10:00,11:00,NULL,pending
+APTID0006,NULL,NULL,ss,Normal,ss,ss,ss,ss,ss,NULL,NULL,21 April 2026,8:00,9:00,NULL,Completed
