@@ -409,19 +409,113 @@ public class TechnicianAppointment extends StaffAppointmentPage {
      * Update statistics based on pending and completed counts
      */
     /**
-     * Mark an appointment as complete
-     * Updates the Appointment.txt file with new status
+     * Show a comment dialog when marking appointment as complete
+     * Allows technician to add comments before finalizing completion
      */
-    public void markAppointmentComplete(String appointmentId) {
+    public void showMarkCompleteCommentDialog(String appointmentId) {
+        // Create a custom dialog for comment input
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        JDialog commentDialog = new JDialog(topFrame, "Add Completion Comment", true);
+        commentDialog.setSize(500, 300);
+        commentDialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        commentDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
+        JPanel dialogPanel = new JPanel();
+        dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
+        dialogPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        dialogPanel.setBackground(Color.WHITE);
+        
+        // Title label
+        JLabel titleLabel = new JLabel("Completion Comment");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        dialogPanel.add(titleLabel);
+        dialogPanel.add(Box.createVerticalStrut(10));
+        
+        // Instructions
+        JLabel instructionLabel = new JLabel("Please add any comments about this appointment completion:");
+        instructionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        instructionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        instructionLabel.setForeground(new Color(100, 100, 100));
+        dialogPanel.add(instructionLabel);
+        dialogPanel.add(Box.createVerticalStrut(10));
+        
+        // Text area for comments
+        JTextArea commentTextArea = new JTextArea(8, 40);
+        commentTextArea.setLineWrap(true);
+        commentTextArea.setWrapStyleWord(true);
+        commentTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
+        commentTextArea.setBackground(new Color(245, 245, 245));
+        
+        JScrollPane scrollPane = new JScrollPane(commentTextArea);
+        scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        dialogPanel.add(scrollPane);
+        dialogPanel.add(Box.createVerticalStrut(15));
+        
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        
+        JButton submitBtn = new JButton("Mark Complete");
+        submitBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        submitBtn.setBackground(new Color(76, 175, 80));
+        submitBtn.setForeground(Color.WHITE);
+        submitBtn.setFocusPainted(false);
+        submitBtn.setPreferredSize(new Dimension(120, 35));
+        
+        JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        cancelBtn.setBackground(new Color(200, 200, 200));
+        cancelBtn.setForeground(Color.BLACK);
+        cancelBtn.setFocusPainted(false);
+        cancelBtn.setPreferredSize(new Dimension(100, 35));
+        
+        submitBtn.addActionListener(e -> {
+            String comment = commentTextArea.getText().trim();
+            markAppointmentCompleteWithComment(appointmentId, comment);
+            commentDialog.dispose();
+        });
+        
+        cancelBtn.addActionListener(e -> {
+            commentDialog.dispose();
+        });
+        
+        buttonPanel.add(submitBtn);
+        buttonPanel.add(cancelBtn);
+        dialogPanel.add(buttonPanel);
+        
+        commentDialog.add(dialogPanel);
+        commentDialog.setVisible(true);
+    }
+
+    /**
+     * Mark an appointment as complete with comment
+     * Updates the Appointment.txt file with new status and adds the comment
+     * 
+     * @param appointmentId The ID of the appointment to mark complete
+     * @param comment The technician's comment about the completion
+     */
+    public void markAppointmentCompleteWithComment(String appointmentId, String comment) {
         try {
             List<String> lines = Files.readAllLines(Paths.get("data", "Appointment.txt"));
             
-            // Update the status for the appointment
+            // Update the status and add comment for the appointment
             for (int i = 1; i < lines.size(); i++) {
                 String[] parts = lines.get(i).split(",");
                 if (parts.length >= 17 && parts[0].trim().equals(appointmentId)) {
                     parts[16] = "Completed"; // Update status to Completed
-                    lines.set(i, String.join(",", parts));
+                    
+                    // Extend array if needed to accommodate comment column (column 17)
+                    String[] newParts = new String[Math.max(parts.length, 18)];
+                    System.arraycopy(parts, 0, newParts, 0, parts.length);
+                    
+                    // Add comment (escape commas and newlines in comment to prevent file corruption)
+                    String sanitizedComment = comment.replace(",", ";").replace("\n", " ");
+                    newParts[17] = sanitizedComment.isEmpty() ? "No comment" : sanitizedComment;
+                    
+                    lines.set(i, String.join(",", newParts));
                     break;
                 }
             }
@@ -434,7 +528,7 @@ public class TechnicianAppointment extends StaffAppointmentPage {
             
             JOptionPane.showMessageDialog(
                 SwingUtilities.getWindowAncestor(this),
-                "Appointment marked as completed!",
+                "Appointment marked as completed with comment!",
                 "Success",
                 JOptionPane.INFORMATION_MESSAGE
             );
@@ -508,9 +602,9 @@ public class TechnicianAppointment extends StaffAppointmentPage {
             button.setFont(new Font("Arial", Font.BOLD, 11));
             button.addActionListener(e -> {
                 if ("Pending".equals(appointmentStatus)) {
-                    // Mark appointment as complete only if status is Pending
+                    // Show comment dialog for pending appointments
                     if (parent != null && appointmentId != null) {
-                        parent.markAppointmentComplete(appointmentId);
+                        parent.showMarkCompleteCommentDialog(appointmentId);
                     }
                     fireEditingStopped();
                 } else {
