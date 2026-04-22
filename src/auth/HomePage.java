@@ -148,6 +148,7 @@ public class HomePage extends JFrame {
 			} else if (text.equals("Appointments")) {
 				contentPanel.removeAll();
 				String detectedRole = userRole; // Default to the role passed to HomePage
+				String technicianID = ""; // Store technician ID
 
 				// Read account.txt to verify role (assuming role is column 4 / index 3)
 				try {
@@ -157,6 +158,7 @@ public class HomePage extends JFrame {
 						String[] parts = line.split(",");
 						if (parts.length >= 4 && parts[1].trim().equalsIgnoreCase(lblUserName.getText().trim())) {
 							detectedRole = parts[3].trim();
+							technicianID = parts[0].trim(); // Get the user ID (first column) for technician
 							break;
 						}
 					}
@@ -172,7 +174,8 @@ public class HomePage extends JFrame {
 					contentPanel.add(new CustomerAppointment(), BorderLayout.CENTER);
 				} else if (detectedRole.equalsIgnoreCase("Technician")) {
 					// Technician has dedicated TechnicianAppointment page
-					contentPanel.add(new TechnicianAppointment(detectedRole), BorderLayout.CENTER);
+					// Pass the technician ID so they only see their assigned appointments
+					contentPanel.add(new TechnicianAppointment(detectedRole, technicianID), BorderLayout.CENTER);
 				} else if (detectedRole.equalsIgnoreCase("Admin") || detectedRole.equalsIgnoreCase("CounterStaff")) {
 					// Admin and CounterStaff share AdminAppointment through inheritance
 					contentPanel.add(new AdminAppointment(detectedRole), BorderLayout.CENTER);

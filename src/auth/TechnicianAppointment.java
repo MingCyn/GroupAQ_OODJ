@@ -28,13 +28,21 @@ import java.util.List;
 public class TechnicianAppointment extends StaffAppointmentPage {
     private JTable appointmentTable;
     private DefaultTableModel tableModel;
+    private String technicianID;
+
+    public TechnicianAppointment(String userRole, String technicianID) {
+        super(userRole);
+        this.technicianID = technicianID;
+    }
 
     public TechnicianAppointment(String userRole) {
         super(userRole);
+        this.technicianID = null;
     }
 
     public TechnicianAppointment() {
         super("Technician");
+        this.technicianID = null;
     }
 
     @Override
@@ -45,9 +53,13 @@ public class TechnicianAppointment extends StaffAppointmentPage {
     /**
      * Override to customize the entire UI for technicians
      * Dashboard with date selection and appointment table
+     * Auto-selects today's date on initial load
      */
     @Override
     protected void initializeUI() {
+        // Auto-select today's date on initialization
+        selectedDate = LocalDate.now();
+        
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
         
@@ -64,10 +76,10 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         
         JSeparator titleSeparator = new JSeparator();
         titleSeparator.setForeground(Color.LIGHT_GRAY);
-        mainContainer.add(Box.createVerticalStrut(10));
+        titleSeparator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        mainContainer.add(Box.createVerticalStrut(20));
         mainContainer.add(titleSeparator);
-        mainContainer.add(Box.createVerticalStrut(5));
-
+        mainContainer.add(Box.createVerticalStrut(20));
         // ================= DATE FILTER SECTION =================
         JPanel dateFilterPanel = createCustomDateFilterPanel();
         dateFilterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -87,7 +99,7 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         mainScrollPane.setBackground(Color.WHITE);
         add(mainScrollPane, BorderLayout.CENTER);
         
-        // Load initial data
+        // Load initial data (filtered by today's date)
         loadAppointmentData();
     }
 
@@ -102,6 +114,7 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
         filterPanel.setBackground(Color.WHITE);
+        filterPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
         
         // ===== Week Navigation Bar =====
         JPanel weekNavBar = new JPanel(new BorderLayout());
@@ -195,9 +208,13 @@ public class TechnicianAppointment extends StaffAppointmentPage {
     private void createAppointmentTable() {
         String[] columnNames = {
             "Appointment ID",
-            "Customer Name",
+            "Full Name",
             "Service Type",
-            "Time",
+            "Service Add-on",
+            "Remarks",
+            "Car Plate",
+            "Start Time",
+            "End Time",
             "Status",
             "Actions"
         };
@@ -205,7 +222,7 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5; // Only Actions column is editable (for button)
+                return column == 9; // Only Actions column is editable (for button)
             }
         };
 
@@ -221,9 +238,9 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         appointmentTable.setShowGrid(true);
 
         // Add custom button renderer and editor for Actions column
-        appointmentTable.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
-        appointmentTable.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox(), this));
-        appointmentTable.getColumnModel().getColumn(5).setPreferredWidth(120);
+        appointmentTable.getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer());
+        appointmentTable.getColumnModel().getColumn(9).setCellEditor(new ButtonEditor(new JCheckBox(), this));
+        appointmentTable.getColumnModel().getColumn(9).setPreferredWidth(120);
     }
 
     /**
@@ -235,7 +252,7 @@ public class TechnicianAppointment extends StaffAppointmentPage {
     }
 
     /**
-     * Load appointment data filtered by status AND date
+     * Load appointment data filtered by status AND date AND technician ID
      */
     private void loadAppointmentDataByFilter() {
         try {
@@ -254,27 +271,43 @@ public class TechnicianAppointment extends StaffAppointmentPage {
                     String appointmentId = parts[0].trim();
                     String fullName = parts[3].trim();
                     String serviceType = parts[4].trim();
+                    String serviceAddon = parts[8].trim();
+                    String remarks = parts[9].trim();
+                    String carPlate = parts[7].trim();
                     String bookingDate = parts[12].trim();
                     String startTime = parts[13].trim();
                     String endTime = parts[14].trim();
                     String status = parts[16].trim();
+                    String assignedTechnicianID = parts[11].trim(); // technicianID is at column 11
                     
-                    // Filter by date if selected
-                    boolean matchesFilter = true;
-                    if (selectedDate != null) {
-                        String selectedDateStr = selectedDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
-                        if (!bookingDate.equals(selectedDateStr)) {
-                            matchesFilter = false;
+                    // Filter by technician ID if technicianID is set
+                    boolean matchesTechnicianFilter = true;
+                    if (technicianID != null && !technicianID.isEmpty()) {
+                        // Only show appointments assigned to this technician
+                        if (!assignedTechnicianID.equals(technicianID)) {
+                            matchesTechnicianFilter = false;
                         }
                     }
                     
-                    if (matchesFilter) {
-                        String timeSlot = startTime + " - " + endTime;
+                    // Filter by date if selected
+                    boolean matchesDateFilter = true;
+                    if (selectedDate != null) {
+                        String selectedDateStr = selectedDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
+                        if (!bookingDate.equals(selectedDateStr)) {
+                            matchesDateFilter = false;
+                        }
+                    }
+                    
+                    if (matchesTechnicianFilter && matchesDateFilter) {
                         tableModel.addRow(new Object[] {
                             appointmentId,
                             fullName,
                             serviceType,
-                            timeSlot,
+                            serviceAddon,
+                            remarks,
+                            carPlate,
+                            startTime,
+                            endTime,
                             status,
                             "Mark Complete"
                         });
@@ -419,19 +452,36 @@ public class TechnicianAppointment extends StaffAppointmentPage {
 
     /**
      * Custom JButton renderer for table cells
+     * Shows "Mark Complete" button for pending appointments in grey
+     * Shows "Completed" button for completed/history appointments in green
      */
     public static class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
             setOpaque(true);
+            setBorderPainted(false);
+            setFocusPainted(false);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
-            setText((value == null) ? "" : value.toString());
-            setBackground(new Color(76, 175, 80));
-            setForeground(Color.WHITE);
+            // Get the status from column 8 (Status column)
+            String status = (String) table.getValueAt(row, 8);
+            
+            if ("Pending".equals(status)) {
+                setText("Mark Complete");
+                setBackground(new Color(169, 169, 169)); // Grey
+                setForeground(Color.WHITE);
+                setEnabled(true);
+            } else {
+                setText("Completed");
+                setBackground(new Color(76, 175, 80)); // Green
+                setForeground(Color.WHITE);
+                setEnabled(true); 
+            }
+            
             setFont(new Font("Arial", Font.BOLD, 11));
+            setOpaque(true);
             return this;
         }
     }
@@ -445,39 +495,69 @@ public class TechnicianAppointment extends StaffAppointmentPage {
         private boolean isPushed;
         private TechnicianAppointment parent;
         private String appointmentId;
+        private String appointmentStatus;
+        private JTable currentTable;
 
         public ButtonEditor(JCheckBox checkBox, TechnicianAppointment parent) {
             super(checkBox);
             this.parent = parent;
             button = new JButton();
             button.setOpaque(true);
-            button.setBackground(new Color(76, 175, 80));
-            button.setForeground(Color.WHITE);
+            button.setBorderPainted(false);
+            button.setFocusPainted(false);
             button.setFont(new Font("Arial", Font.BOLD, 11));
-            button.addActionListener(e -> fireEditingStopped());
+            button.addActionListener(e -> {
+                if ("Pending".equals(appointmentStatus)) {
+                    // Mark appointment as complete only if status is Pending
+                    if (parent != null && appointmentId != null) {
+                        parent.markAppointmentComplete(appointmentId);
+                    }
+                    fireEditingStopped();
+                } else {
+                    // Show message if trying to mark non-pending appointment
+                    Window parentWindow = SwingUtilities.getWindowAncestor(parent);
+                    JOptionPane.showMessageDialog(
+                        parentWindow,
+                        "This appointment has been completed.",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+                    fireEditingStopped();
+                }
+            });
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
+            this.currentTable = table;
             label = (value == null) ? "" : value.toString();
-            button.setText(label);
-            isPushed = true;
             
             // Get appointment ID from the first column
             appointmentId = (String) table.getValueAt(row, 0);
+            // Get appointment status from column 8
+            appointmentStatus = (String) table.getValueAt(row, 8);
             
+            // Set button appearance based on status
+            if ("Pending".equals(appointmentStatus)) {
+                button.setText("Mark Complete");
+                button.setBackground(new Color(169, 169, 169)); // Grey
+                button.setForeground(Color.WHITE);
+                button.setEnabled(true);
+            } else {
+                button.setText("Completed");
+                button.setBackground(new Color(76, 175, 80)); // Green
+                button.setForeground(Color.WHITE);
+                button.setEnabled(true); // Keep enabled to allow clicking and showing message
+            }
+            
+            button.setOpaque(true);
+            isPushed = true;
             return button;
         }
 
         @Override
         public Object getCellEditorValue() {
-            if (isPushed) {
-                // Mark appointment as complete
-                if (parent != null && appointmentId != null) {
-                    parent.markAppointmentComplete(appointmentId);
-                }
-            }
             isPushed = false;
             return label;
         }
