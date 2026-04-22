@@ -290,41 +290,104 @@ public class MyAppointment extends JPanel {
         header.add(right, BorderLayout.EAST);
 
         // ===== DETAILS =====
-        JPanel details = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel details = new JPanel();
+        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
         details.setBackground(new Color(235, 243, 250));
         details.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        details.add(new JLabel("Appointment ID"));
-        details.add(new JLabel(p[0]));
+        // Info Grid
+        JPanel infoPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        infoPanel.setBackground(new Color(235, 243, 250));
+        infoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
 
-        details.add(new JLabel("Service"));
-        details.add(new JLabel(service));
+        infoPanel.add(new JLabel("Appointment ID"));
+        infoPanel.add(new JLabel(p[0]));
 
-        details.add(new JLabel("Car Plate"));
-        details.add(new JLabel(p[7]));
+        infoPanel.add(new JLabel("Service"));
+        infoPanel.add(new JLabel(service));
 
-        details.add(new JLabel("Total Price"));
-        details.add(new JLabel("RM " + p[15]));
+        infoPanel.add(new JLabel("Car Plate"));
+        infoPanel.add(new JLabel(p[7]));
 
-        JButton cancel = new JButton("Cancel Appointment");
+        infoPanel.add(new JLabel("Total Price"));
+        infoPanel.add(new JLabel("RM " + p[15]));
 
-        cancel.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Are you sure you want to cancel this appointment?",
-                    "Confirm Cancel",
-                    JOptionPane.YES_NO_OPTION
-            );
+        details.add(infoPanel);
+        details.add(Box.createVerticalStrut(15));
 
-            if (confirm == JOptionPane.YES_OPTION) {
-                cancelAppointment(p); // use appointment ID
-            }
-        });
-        
-        JButton reschedule = new JButton("Reschedule");
+        // ===== CONDITIONAL BUTTONS BASED ON STATUS =====
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        buttonPanel.setBackground(new Color(235, 243, 250));
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-        details.add(cancel);
-        details.add(reschedule);
+        if ("Pending".equalsIgnoreCase(statusText)) {
+            JButton cancel = new JButton("Cancel Appointment");
+            cancel.setPreferredSize(new Dimension(400, 35));
+            cancel.setFont(new Font("Arial", Font.PLAIN, 12));
+            cancel.setBackground(new Color(220, 100, 100));
+            cancel.setForeground(Color.WHITE);
+            cancel.setFocusPainted(false);
+            cancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            cancel.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(
+                        this,
+                        "Are you sure you want to cancel this appointment?",
+                        "Confirm Cancel",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
+                    cancelAppointment(p);
+                }
+            });
+
+            JButton reschedule = new JButton("Reschedule");
+            reschedule.setPreferredSize(new Dimension(400, 35));
+            reschedule.setFont(new Font("Arial", Font.PLAIN, 12));
+            reschedule.setBackground(new Color(100, 150, 220));
+            reschedule.setForeground(Color.WHITE);
+            reschedule.setFocusPainted(false);
+            reschedule.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            reschedule.addActionListener(e -> rescheduleAppointment(p));
+
+            buttonPanel.add(cancel);
+            buttonPanel.add(reschedule);
+
+        } else if ("Confirmed".equalsIgnoreCase(statusText)) {
+            JButton makeRemark = new JButton("Change Remark");
+            makeRemark.setPreferredSize(new Dimension(800, 35));
+            makeRemark.setFont(new Font("Arial", Font.PLAIN, 12));
+            makeRemark.setBackground(new Color(100, 180, 150));
+            makeRemark.setForeground(Color.WHITE);
+            makeRemark.setFocusPainted(false);
+            makeRemark.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            makeRemark.addActionListener(e -> showRemarkDialog(p));
+
+            buttonPanel.add(makeRemark);
+
+        } else if ("Completed".equalsIgnoreCase(statusText)) {
+            JButton makePay = new JButton("Make Payment");
+            makePay.setPreferredSize(new Dimension(400, 35));
+            makePay.setFont(new Font("Arial", Font.PLAIN, 12));
+            makePay.setBackground(new Color(100, 180, 100));
+            makePay.setForeground(Color.WHITE);
+            makePay.setFocusPainted(false);
+            makePay.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            makePay.addActionListener(e -> makePayment(p));
+
+            JButton viewComment = new JButton("View Comment");
+            viewComment.setPreferredSize(new Dimension(400, 35));
+            viewComment.setFont(new Font("Arial", Font.PLAIN, 12));
+            viewComment.setBackground(new Color(180, 150, 100));
+            viewComment.setForeground(Color.WHITE);
+            viewComment.setFocusPainted(false);
+            viewComment.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            viewComment.addActionListener(e -> showCommentDialog(p));
+
+            buttonPanel.add(makePay);
+            buttonPanel.add(viewComment);
+        }
+
+        details.add(buttonPanel);
 
         details.setVisible(false);
 
@@ -407,6 +470,234 @@ public class MyAppointment extends JPanel {
         displayAppointments();
 
         JOptionPane.showMessageDialog(this, "Appointment cancelled successfully");
+    }
+
+    private void rescheduleAppointment(String[] selectedAppointment) {
+        // Navigate to RescheduleTimeSlotPage to let user select new date and time
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window instanceof JFrame) {
+            JFrame frame = (JFrame) window;
+            if (frame instanceof HomePage) {
+                ((HomePage) frame).showPage(new RescheduleTimeSlotPage(selectedAppointment, this));
+            }
+        }
+    }
+
+    public void updateAppointmentDateTime(String[] selectedAppointment, String newDate, String newTime) {
+        File inputFile = new File("data/Appointment.txt");
+        File tempFile = new File("data/temp.txt");
+
+        try (
+            BufferedReader br = new BufferedReader(new FileReader(inputFile));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+
+            String line;
+            boolean first = true;
+
+            while ((line = br.readLine()) != null) {
+
+                if (first) {
+                    bw.write(line);
+                    bw.newLine();
+                    first = false;
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+
+                if (parts[0].equals(selectedAppointment[0]) &&   // Appointment ID
+                    parts[1].equals(selectedAppointment[1]) &&   // Customer ID
+                    parts[12].equals(selectedAppointment[12]) && // Current Date
+                    parts[13].equals(selectedAppointment[13])) { // Current Time
+
+                    parts[12] = newDate;  // Update date
+                    parts[13] = newTime;  // Update time
+                    line = String.join(",", parts);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error rescheduling appointment");
+            return;
+        }
+
+        // replace original file
+        if (inputFile.delete()) {
+            tempFile.renameTo(inputFile);
+        }
+
+        // refresh UI
+        loadAppointmentsFromFile();
+        displayAppointments();
+
+        JOptionPane.showMessageDialog(this, "Appointment rescheduled successfully");
+    }
+
+    private void showRemarkDialog(String[] selectedAppointment) {
+        // Create a dialog for managing remarks
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Make/Change Remark");
+        dialog.setSize(500, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setModal(true);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
+
+        JLabel label = new JLabel("Enter or edit your remark:");
+        label.setFont(new Font("Arial", Font.PLAIN, 13));
+        panel.add(label);
+        panel.add(Box.createVerticalStrut(10));
+
+        JTextArea remarkArea = new JTextArea(selectedAppointment[9]);
+        remarkArea.setFont(new Font("Arial", Font.PLAIN, 12));
+        remarkArea.setLineWrap(true);
+        remarkArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(remarkArea);
+        panel.add(scrollPane);
+        panel.add(Box.createVerticalStrut(15));
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton saveBtn = new JButton("Save");
+        JButton cancelBtn = new JButton("Cancel");
+
+        saveBtn.addActionListener(e -> {
+            String newRemark = remarkArea.getText().trim();
+            updateAppointmentRemark(selectedAppointment, newRemark);
+            dialog.dispose();
+        });
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(saveBtn);
+        buttonPanel.add(cancelBtn);
+
+        panel.add(buttonPanel);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    private void updateAppointmentRemark(String[] selectedAppointment, String newRemark) {
+        File inputFile = new File("data/Appointment.txt");
+        File tempFile = new File("data/temp.txt");
+
+        try (
+            BufferedReader br = new BufferedReader(new FileReader(inputFile));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+
+            String line;
+            boolean first = true;
+
+            while ((line = br.readLine()) != null) {
+
+                if (first) {
+                    bw.write(line);
+                    bw.newLine();
+                    first = false;
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+
+                if (parts[0].equals(selectedAppointment[0]) &&   // Appointment ID
+                    parts[1].equals(selectedAppointment[1])) {   // Customer ID
+
+                    parts[9] = newRemark;  // Update remark
+                    line = String.join(",", parts);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error updating remark");
+            return;
+        }
+
+        // replace original file
+        if (inputFile.delete()) {
+            tempFile.renameTo(inputFile);
+        }
+
+        // refresh UI
+        loadAppointmentsFromFile();
+        displayAppointments();
+
+        JOptionPane.showMessageDialog(this, "Remark updated successfully");
+    }
+
+    private void makePayment(String[] selectedAppointment) {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame instanceof HomePage) {
+            // Pass appointment details to payment page
+            // This assumes you have a PaymentPage or similar class
+            // For now, we'll show a simple dialog
+            JOptionPane.showMessageDialog(
+                this,
+                "Redirecting to payment page for Appointment ID: " + selectedAppointment[0] +
+                "\nAmount: RM " + selectedAppointment[15],
+                "Make Payment",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            // TODO: Navigate to actual payment page
+            // ((HomePage) frame).showPage(new PaymentPage(selectedAppointment));
+        }
+    }
+
+    private void showCommentDialog(String[] selectedAppointment) {
+        // Create a dialog to display technician comments
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Technician Comment");
+        dialog.setSize(500, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setModal(true);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Technician Comment");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        panel.add(titleLabel);
+        panel.add(Box.createVerticalStrut(10));
+
+        String comment = selectedAppointment[17]; // Technician comment is at index 17
+        if (comment == null || comment.trim().isEmpty() || comment.equals("NULL")) {
+            comment = "No comment provided";
+        }
+
+        JTextArea commentArea = new JTextArea(comment);
+        commentArea.setFont(new Font("Arial", Font.PLAIN, 12));
+        commentArea.setLineWrap(true);
+        commentArea.setWrapStyleWord(true);
+        commentArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(commentArea);
+        panel.add(scrollPane);
+        panel.add(Box.createVerticalStrut(15));
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.addActionListener(e -> dialog.dispose());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(closeBtn);
+
+        panel.add(buttonPanel);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
     }
     
     private Color getStatusColor(String status) {
