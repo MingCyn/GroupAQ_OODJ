@@ -4,5 +4,5 @@ APTID0002,CTM0002,sinyi,eee,Normal,e,e,e,e,ssse,tech,TEH0002,8 April 2026,11:00,
 APTID0003,CTM0002,sinyi,tt,Normal,t,t,t,t,t,tech,TEH0002,9 April 2026,10:00,11:00,NULL,Cancelled
 APTID0004,NULL,NULL,rr,Normal,rr,rr,rr,rr,r,NULL,NULL,12 April 2026,9:00,10:00,NULL,Completed
 APTID0005,NULL,NULL,sdfdf,Normal,sfdsfsf,dsf,dfsfsfs,fsfds,fsfsfs,NULL,NULL,12 April 2026,10:00,11:00,NULL,Pending
-APTID0006,CTM0002,sinyi,eee,Normal,ss,ss,ss,ss,ss,tech,TEH0002,22 April 2026,8:00,9:00,NULL,Completed,Everything is just fine
-APTID0007,CTM0002,sinyi,eee,Normal,ss,ss,ss,ss,ss,ninni,TEH0003,21 April 2026,8:00,9:00,NULL,Cancelled
+APTID0006,CTM0002,sinyi,eee,Normal,ss,ss,ss,ss,ss,tech,TEH0002,22 April 2026,8:00,9:00,NULL,Paid,Everything is just fine
+APTID0007,CTM0002,sinyi,eee,Normal,ss,ss,ss,ss,ss,ninni,TEH0002,21 April 2026,8:00,9:00,NULL,Paid,Done. All Good

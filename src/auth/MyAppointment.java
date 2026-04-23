@@ -211,8 +211,7 @@ public class MyAppointment extends JPanel {
             if (!currentFilter.equals("All")) {
 
                 if (currentFilter.equals("History")) {
-                    if (!(status.equalsIgnoreCase("Completed") ||
-                          status.equalsIgnoreCase("Paid") ||
+                    if (!(status.equalsIgnoreCase("Paid") ||
                           status.equalsIgnoreCase("Cancelled"))) {
                         continue;
                     }
@@ -322,7 +321,7 @@ public class MyAppointment extends JPanel {
 
         if ("Pending".equalsIgnoreCase(statusText)) {
             JButton cancel = new JButton("Cancel Appointment");
-            cancel.setPreferredSize(new Dimension(400, 35));
+            cancel.setPreferredSize(new Dimension(500, 35));
             cancel.setFont(new Font("Arial", Font.PLAIN, 12));
             cancel.setBackground(new Color(220, 100, 100));
             cancel.setForeground(Color.WHITE);
@@ -341,7 +340,7 @@ public class MyAppointment extends JPanel {
             });
 
             JButton reschedule = new JButton("Reschedule");
-            reschedule.setPreferredSize(new Dimension(400, 35));
+            reschedule.setPreferredSize(new Dimension(500, 35));
             reschedule.setFont(new Font("Arial", Font.PLAIN, 12));
             reschedule.setBackground(new Color(100, 150, 220));
             reschedule.setForeground(Color.WHITE);
@@ -354,7 +353,7 @@ public class MyAppointment extends JPanel {
 
         } else if ("Confirmed".equalsIgnoreCase(statusText)) {
             JButton makeRemark = new JButton("Change Remark");
-            makeRemark.setPreferredSize(new Dimension(800, 35));
+            makeRemark.setPreferredSize(new Dimension(1000, 35));
             makeRemark.setFont(new Font("Arial", Font.PLAIN, 12));
             makeRemark.setBackground(new Color(100, 180, 150));
             makeRemark.setForeground(Color.WHITE);
@@ -366,7 +365,7 @@ public class MyAppointment extends JPanel {
 
         } else if ("Completed".equalsIgnoreCase(statusText)) {
             JButton makePay = new JButton("Make Payment");
-            makePay.setPreferredSize(new Dimension(400, 35));
+            makePay.setPreferredSize(new Dimension(500, 35));
             makePay.setFont(new Font("Arial", Font.PLAIN, 12));
             makePay.setBackground(new Color(100, 180, 100));
             makePay.setForeground(Color.WHITE);
@@ -375,7 +374,7 @@ public class MyAppointment extends JPanel {
             makePay.addActionListener(e -> makePayment(p));
 
             JButton viewComment = new JButton("View Comment");
-            viewComment.setPreferredSize(new Dimension(400, 35));
+            viewComment.setPreferredSize(new Dimension(500, 35));
             viewComment.setFont(new Font("Arial", Font.PLAIN, 12));
             viewComment.setBackground(new Color(180, 150, 100));
             viewComment.setForeground(Color.WHITE);
@@ -384,6 +383,28 @@ public class MyAppointment extends JPanel {
             viewComment.addActionListener(e -> showCommentDialog(p));
 
             buttonPanel.add(makePay);
+            buttonPanel.add(viewComment);
+
+        } else if ("Paid".equalsIgnoreCase(statusText)) {
+            JButton giveReview = new JButton("Give Review");
+            giveReview.setPreferredSize(new Dimension(500, 35));
+            giveReview.setFont(new Font("Arial", Font.PLAIN, 12));
+            giveReview.setBackground(new Color(150, 120, 200));
+            giveReview.setForeground(Color.WHITE);
+            giveReview.setFocusPainted(false);
+            giveReview.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            giveReview.addActionListener(e -> showReviewDialog(p));
+
+            JButton viewComment = new JButton("View Comment");
+            viewComment.setPreferredSize(new Dimension(500, 35));
+            viewComment.setFont(new Font("Arial", Font.PLAIN, 12));
+            viewComment.setBackground(new Color(180, 150, 100));
+            viewComment.setForeground(Color.WHITE);
+            viewComment.setFocusPainted(false);
+            viewComment.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            viewComment.addActionListener(e -> showCommentDialog(p));
+
+            buttonPanel.add(giveReview);
             buttonPanel.add(viewComment);
         }
 
@@ -637,29 +658,60 @@ public class MyAppointment extends JPanel {
         JOptionPane.showMessageDialog(this, "Remark updated successfully");
     }
 
-    private void makePayment(String[] selectedAppointment) {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (frame instanceof HomePage) {
-            // Pass appointment details to payment page
-            // This assumes you have a PaymentPage or similar class
-            // For now, we'll show a simple dialog
-            JOptionPane.showMessageDialog(
-                this,
-                "Redirecting to payment page for Appointment ID: " + selectedAppointment[0] +
-                "\nAmount: RM " + selectedAppointment[15],
-                "Make Payment",
-                JOptionPane.INFORMATION_MESSAGE
-            );
-            // TODO: Navigate to actual payment page
-            // ((HomePage) frame).showPage(new PaymentPage(selectedAppointment));
+    private void updateAppointmentStatus(String[] selectedAppointment) {
+        File inputFile = new File("data/Appointment.txt");
+        File tempFile = new File("data/temp.txt");
+
+        try (
+            BufferedReader br = new BufferedReader(new FileReader(inputFile));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+
+            String line;
+            boolean first = true;
+
+            while ((line = br.readLine()) != null) {
+
+                if (first) {
+                    bw.write(line);
+                    bw.newLine();
+                    first = false;
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+
+                if (parts[0].equals(selectedAppointment[0]) &&   // Appointment ID
+                    parts[1].equals(selectedAppointment[1])) {   // Customer ID
+
+                    parts[16] = "Paid";  // Update status from Completed to Paid
+                    line = String.join(",", parts);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error updating payment status");
+            return;
         }
+
+        // replace original file
+        if (inputFile.delete()) {
+            tempFile.renameTo(inputFile);
+        }
+
+        // refresh UI
+        loadAppointmentsFromFile();
+        displayAppointments();
     }
 
-    private void showCommentDialog(String[] selectedAppointment) {
-        // Create a dialog to display technician comments
+    private void makePayment(String[] selectedAppointment) {
+        // Create payment confirmation dialog
         JDialog dialog = new JDialog();
-        dialog.setTitle("Technician Comment");
-        dialog.setSize(500, 300);
+        dialog.setTitle("Make Payment");
+        dialog.setSize(400, 250);
         dialog.setLocationRelativeTo(this);
         dialog.setModal(true);
 
@@ -668,36 +720,370 @@ public class MyAppointment extends JPanel {
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
         panel.setBackground(Color.WHITE);
 
-        JLabel titleLabel = new JLabel("Technician Comment");
+        JLabel titleLabel = new JLabel("Payment Confirmation");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(titleLabel);
-        panel.add(Box.createVerticalStrut(10));
-
-        String comment = selectedAppointment[17]; // Technician comment is at index 17
-        if (comment == null || comment.trim().isEmpty() || comment.equals("NULL")) {
-            comment = "No comment provided";
-        }
-
-        JTextArea commentArea = new JTextArea(comment);
-        commentArea.setFont(new Font("Arial", Font.PLAIN, 12));
-        commentArea.setLineWrap(true);
-        commentArea.setWrapStyleWord(true);
-        commentArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(commentArea);
-        panel.add(scrollPane);
         panel.add(Box.createVerticalStrut(15));
 
-        JButton closeBtn = new JButton("Close");
-        closeBtn.addActionListener(e -> dialog.dispose());
+        JLabel appointmentLabel = new JLabel("Appointment ID: " + selectedAppointment[0]);
+        appointmentLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(appointmentLabel);
+        panel.add(Box.createVerticalStrut(5));
+
+        JLabel amountLabel = new JLabel("Amount: RM " + selectedAppointment[15]);
+        amountLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(amountLabel);
+        panel.add(Box.createVerticalStrut(20));
+
+        JLabel confirmLabel = new JLabel("Proceed with payment?");
+        confirmLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(confirmLabel);
+        panel.add(Box.createVerticalStrut(20));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
-        buttonPanel.add(closeBtn);
+
+        JButton cancelBtn = new JButton("Cancel");
+        JButton okBtn = new JButton("OK");
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        okBtn.addActionListener(e -> {
+            updateAppointmentStatus(selectedAppointment);
+            dialog.dispose();
+            JOptionPane.showMessageDialog(
+                this,
+                "Payment successful! Status updated to Paid.",
+                "Payment Completed",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        buttonPanel.add(cancelBtn);
+        buttonPanel.add(okBtn);
 
         panel.add(buttonPanel);
 
         dialog.add(panel);
         dialog.setVisible(true);
+    }
+
+    private void showCommentDialog(String[] selectedAppointment) {
+
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Technician Comment");
+        dialog.setSize(520, 350);
+        dialog.setLocationRelativeTo(this);
+        dialog.setModal(true);
+        dialog.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(245, 247, 250));
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // ================= HEADER =================
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setBackground(new Color(245, 247, 250));
+
+        JLabel title = new JLabel("Technician Comment");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("Feedback from technician about your service");
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 12));
+        subtitle.setForeground(Color.GRAY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        topPanel.add(title);
+        topPanel.add(Box.createVerticalStrut(5));
+        topPanel.add(subtitle);
+        topPanel.add(Box.createVerticalStrut(5));
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // ================= CENTER =================
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBackground(new Color(245, 247, 250));
+
+        String comment = selectedAppointment[17];
+
+        if (comment == null || comment.trim().isEmpty() || comment.equals("NULL")) {
+            comment = "No comment provided";
+        }
+
+        JTextArea commentArea = new JTextArea(comment);
+        commentArea.setFont(new Font("Arial", Font.PLAIN, 13));
+        commentArea.setLineWrap(true);
+        commentArea.setWrapStyleWord(true);
+        commentArea.setEditable(false);
+        commentArea.setBackground(Color.WHITE);
+        commentArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(commentArea);
+        scrollPane.setPreferredSize(new Dimension(450, 150));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+
+        centerPanel.add(scrollPane);
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+        // ================= BUTTON =================
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(new Color(245, 247, 250));
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.setPreferredSize(new Dimension(100, 35));
+        closeBtn.setBackground(new Color(180, 180, 180));
+        closeBtn.setForeground(Color.WHITE);
+        closeBtn.setFocusPainted(false);
+        closeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeBtn.addActionListener(e -> dialog.dispose());
+
+        bottomPanel.add(closeBtn);
+
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.setVisible(true);
+    }
+    
+    private void showReviewDialog(String[] selectedAppointment) {
+
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Service Review");
+        dialog.setSize(550, 520);
+        dialog.setLocationRelativeTo(this);
+        dialog.setModal(true);
+        dialog.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(245, 247, 250));
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // ================= TOP TITLE =================
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setBackground(new Color(245, 247, 250));
+
+        JLabel title = new JLabel("Leave us a Review");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("Rate your experience");
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 13));
+        subtitle.setForeground(Color.GRAY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        topPanel.add(title);
+        topPanel.add(Box.createVerticalStrut(5));
+        topPanel.add(subtitle);
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // ================= CENTER PANEL =================
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBackground(new Color(245, 247, 250));
+
+        // Appointment info (small text)
+        JLabel appointmentLabel = new JLabel("Appointment ID: " + selectedAppointment[0]);
+        appointmentLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        appointmentLabel.setForeground(Color.GRAY);
+        appointmentLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        centerPanel.add(appointmentLabel);
+        
+        // ================= STARS =================
+        JPanel starsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        starsPanel.setBackground(new Color(245, 247, 250));
+
+        JLabel ratingText = new JLabel("5 out of 5 stars");
+        ratingText.setFont(new Font("Arial", Font.PLAIN, 12));
+        ratingText.setForeground(Color.GRAY);
+        ratingText.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        final int[] selectedRating = {5};
+
+        JLabel[] starLabels = new JLabel[5];
+
+        for (int i = 0; i < 5; i++) {
+
+            final int starIndex = i + 1;
+
+            starLabels[i] = new JLabel("★");
+            starLabels[i].setFont(new Font("Segoe UI Symbol", Font.PLAIN, 38));
+            starLabels[i].setForeground(new Color(255, 204, 0));
+            starLabels[i].setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            starLabels[i].addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    selectedRating[0] = starIndex;
+                    updateStars(starLabels, starIndex);
+                    ratingText.setText(starIndex + " out of 5 stars");
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    updateStars(starLabels, starIndex);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    updateStars(starLabels, selectedRating[0]);
+                }
+            });
+
+            starsPanel.add(starLabels[i]);
+        }
+
+        centerPanel.add(starsPanel);
+        centerPanel.add(ratingText);
+        centerPanel.add(Box.createVerticalStrut(20));
+
+        // ================= REVIEW TEXT AREA =================
+        JTextArea reviewArea = new JTextArea(6, 40);
+        reviewArea.setFont(new Font("Arial", Font.PLAIN, 13));
+        reviewArea.setLineWrap(true);
+        reviewArea.setWrapStyleWord(true);
+        reviewArea.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 210, 210)),
+                new EmptyBorder(10, 10, 10, 10)
+        ));
+
+        JScrollPane scrollPane = new JScrollPane(reviewArea);
+        scrollPane.setPreferredSize(new Dimension(480, 120));
+
+        centerPanel.add(scrollPane);
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+        // ================= BUTTONS =================
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(new Color(245, 247, 250));
+
+        JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setPreferredSize(new Dimension(100, 35));
+        cancelBtn.setBackground(Color.LIGHT_GRAY);
+        cancelBtn.setFocusPainted(false);
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        JButton submitBtn = new JButton("Submit Review");
+        submitBtn.setPreferredSize(new Dimension(140, 35));
+        submitBtn.setBackground(new Color(60, 179, 113));
+        submitBtn.setForeground(Color.WHITE);
+        submitBtn.setFocusPainted(false);
+
+        submitBtn.addActionListener(e -> {
+            String review = reviewArea.getText().trim();
+
+            if (review.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a review comment",
+                        "Empty Review",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            saveReview(selectedAppointment, selectedRating[0], review);
+
+            dialog.dispose();
+
+            JOptionPane.showMessageDialog(MyAppointment.this,
+                    "Review submitted successfully!",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        bottomPanel.add(cancelBtn);
+        bottomPanel.add(submitBtn);
+
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.setVisible(true);
+    }
+
+    private void updateStars(JLabel[] starLabels, int rating) {
+        for (int i = 0; i < 5; i++) {
+            if (i < rating) {
+                starLabels[i].setForeground(new Color(255, 215, 0)); // Gold - filled
+            } else {
+                starLabels[i].setForeground(new Color(200, 200, 200)); // Gray - empty
+            }
+        }
+    }
+
+    private void saveReview(String[] selectedAppointment, int rating, String review) {
+        String feedbackID = generateFeedbackID();
+        String appointmentID = selectedAppointment[0];
+        String userRole = "Customer";
+        String replyTo = "None";
+        String createdDate = getCurrentDate();
+
+        File feedbackFile = new File("data/Feedback.txt");
+        
+        try (FileWriter fw = new FileWriter(feedbackFile, true)) {
+            // Check if file is empty (new file or just header)
+            if (feedbackFile.length() == 0) {
+                fw.write("feedbackID,appointmentID,customerID,userRole,rating,message,replyTo,createdDate\n");
+            }
+
+            // Create feedback entry with rating as separate column
+            String feedbackLine = feedbackID + "," + appointmentID + "," + customerID + "," + 
+                                 userRole + "," + rating + "," + review + "," + replyTo + "," + createdDate;
+            
+            fw.write(feedbackLine + "\n");
+            fw.flush();
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving review: " + e.getMessage());
+        }
+    }
+
+    private String generateFeedbackID() {
+        File feedbackFile = new File("data/Feedback.txt");
+        int nextID = 1;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(feedbackFile))) {
+            String line;
+            int maxID = 0;
+
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("feedbackID") || line.trim().isEmpty()) continue;
+
+                String[] parts = line.split(",");
+                if (parts.length > 0) {
+                    String feedbackID = parts[0].trim();
+                    if (feedbackID.startsWith("FB")) {
+                        try {
+                            int id = Integer.parseInt(feedbackID.substring(2));
+                            if (id > maxID) {
+                                maxID = id;
+                            }
+                        } catch (NumberFormatException e) {
+                            // Skip if not a valid ID
+                        }
+                    }
+                }
+            }
+
+            nextID = maxID + 1;
+
+        } catch (IOException e) {
+            // File doesn't exist yet, start with FB001
+            nextID = 1;
+        }
+
+        return String.format("FB%03d", nextID);
+    }
+
+    private String getCurrentDate() {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMMM yyyy");
+        return sdf.format(new java.util.Date());
     }
     
     private Color getStatusColor(String status) {
