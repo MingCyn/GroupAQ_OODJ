@@ -1,6 +1,7 @@
-feedbackID,appointmentID,customerID,userRole,rating,message,replyTo,createdDate
-FB001,APTID0006,CTM0002,Customer,5,Service was good,None,22 April 2026
-FB002,APTID0006,TEH0002,Technician,N/A,Thank you for your feedback,FB001,22 April 2026
-FB003,APTID0006,ADM0001,Admin,N/A,We will improve service quality,FB001,22 April 2026
-FB004,APTID0006,CTM0002,Customer,5,Best SERVICE,None,23 April 2026
-FB005,APTID0007,CTM0002,Customer,5,fsdfsfasdfas,None,23 April 2026
+feedbackID,appointmentID,customerID,userRole,rating,message,replyTo,createdDate,likes
+FB004,APTID0006,CTM0002,Customer,5,Best SERVICE,None,23 April 2026,2
+FB005,APTID0007,CTM0002,Customer,5,fsdfsfasdfas,None,23 April 2026,0
+FB006,APTID0006,CTM0002,Customer,5,sss,None,23 April 2026,0
+FB007,APTID0006,ADM0001,Admin,N/A,sdfdfsa,FB004,23 April 2026,0
+FB008,APTID0006,ADM0001,Admin,N/A,eee,FB004,23 April 2026,0
+FB009,APTID0006,ADM0001,Admin,N/A,eeee,FB004,23 April 2026,0

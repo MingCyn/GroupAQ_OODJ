@@ -185,6 +185,32 @@ public class HomePage extends JFrame {
 				}
 				contentPanel.revalidate();
 				contentPanel.repaint();
+			} else if (text.equals("Feedback")) {
+				contentPanel.removeAll();
+				String detectedRole = userRole;
+				String userID = "";
+				String userName = lblUserName.getText().trim();
+
+				// Read account.txt to get user ID and verify role
+				try {
+					java.util.List<String> lines = java.nio.file.Files
+							.readAllLines(java.nio.file.Paths.get("data", "account.txt"));
+					for (String line : lines) {
+						String[] parts = line.split(",");
+						if (parts.length >= 4 && parts[1].trim().equalsIgnoreCase(userName)) {
+							userID = parts[0].trim();
+							detectedRole = parts[3].trim();
+							break;
+						}
+					}
+				} catch (java.io.IOException ex) {
+					ex.printStackTrace();
+				}
+
+				// Show feedback page for all user roles
+				contentPanel.add(new Feedback(userID, userName, detectedRole), BorderLayout.CENTER);
+				contentPanel.revalidate();
+				contentPanel.repaint();
 			} else {
 				System.out.println("Navigating to: " + text);
 			}
