@@ -43,6 +43,7 @@ public class Feedback extends JPanel {
         JLabel titleLabel = new JLabel("Customer Reviews & Feedback");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+//        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         main.add(titleLabel);
         main.add(Box.createVerticalStrut(5));
@@ -150,112 +151,100 @@ public class Feedback extends JPanel {
 
     private JPanel createFeedbackCard(String[] feedback) {
         JPanel container = new JPanel(new BorderLayout());
-        container.setBackground(new Color(240, 248, 255));
-        container.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(100, 150, 200), 2),
-                new EmptyBorder(15, 15, 15, 15)
-        ));
+        container.setBackground(Color.WHITE);
+        container.setBorder(new EmptyBorder(15, 10, 15, 10));
+        container.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
         String feedbackID = feedback[0];
         String appointmentID = feedback[1];
         String customerID = feedback[2];
         String userRole = feedback[3];
-        String rating = feedback.length > 4 ? feedback[4] : "N/A";
+        String rating = feedback.length > 4 ? feedback[4] : "0";
         String message = feedback.length > 5 ? feedback[5] : "";
         String createdDate = feedback.length > 7 ? feedback[7] : "";
         int likes = feedback.length > 8 ? Integer.parseInt(feedback[8]) : 0;
 
-        // Get customer name from account.txt
         String customerName = getNameByID(customerID);
 
-        // ===== HEADER =====
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(240, 248, 255));
+        // ===== AVATAR =====
+        JLabel avatar = new JLabel(customerName.substring(0, 1).toUpperCase(), SwingConstants.CENTER);
+        avatar.setPreferredSize(new Dimension(40, 40));
+        avatar.setOpaque(true);
+        avatar.setBackground(new Color(66, 133, 244));
+        avatar.setForeground(Color.WHITE);
+        avatar.setFont(new Font("Arial", Font.BOLD, 16));
 
-        // LEFT SIDE (NAME + ROLE + DATE)
-        JPanel left = new JPanel();
-        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
-        left.setBackground(new Color(240, 248, 255));
+        // ===== TEXT INFO =====
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setBackground(Color.WHITE);
 
         JLabel nameLabel = new JLabel(customerName + " (" + userRole + ")");
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        nameLabel.setForeground(new Color(60, 130, 190));
+
+        JLabel starsLabel = new JLabel(getStarString(Integer.parseInt(rating)));
+        starsLabel.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 20));
+        starsLabel.setForeground(new Color(255, 180, 0));
 
         JLabel dateLabel = new JLabel(createdDate);
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         dateLabel.setForeground(Color.GRAY);
 
-        left.add(nameLabel);
-        left.add(dateLabel);
+        textPanel.add(nameLabel);
+        textPanel.add(starsLabel);
+        textPanel.add(dateLabel);
 
-        // RIGHT SIDE (RATING + MENU)
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        right.setBackground(new Color(240, 248, 255));
-
-        // Display stars if rating is numeric
-        if (!rating.equalsIgnoreCase("N/A")) {
-            try {
-                int starCount = Integer.parseInt(rating);
-                JLabel starsLabel = new JLabel(getStarString(starCount) + " " + rating + "/5");
-                starsLabel.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 12));
-                right.add(starsLabel);
-            } catch (NumberFormatException e) {
-                // Skip if not a valid rating
-            }
-        }
-
-        // Three-dot menu (only if user owns this feedback)
-        if (currentUserID.equals(customerID)) {
-            JButton menuBtn = createThreeDotMenu(feedbackID, customerID);
-            right.add(menuBtn);
-        }
-
-        header.add(left, BorderLayout.WEST);
-        header.add(right, BorderLayout.EAST);
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        header.setBackground(Color.WHITE);
+        header.add(avatar);
+        header.add(textPanel);
 
         // ===== MESSAGE =====
-        JLabel messageLabel = new JLabel("<html>" + message + "</html>");
+        JLabel messageLabel = new JLabel("<html><div style='width:350px'>" + message + "</div></html>");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 13));
-        messageLabel.setBorder(new EmptyBorder(15, 0, 15, 0));
+        messageLabel.setBorder(new EmptyBorder(10, 50, 10, 0));
 
-        // ===== FOOTER (LIKE + REPLY BUTTONS) =====
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
-        footer.setBackground(new Color(240, 248, 255));
+        // ===== FOOTER =====
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        footer.setBackground(Color.WHITE);
 
         boolean userLiked = likedFeedback.contains(feedbackID);
-        JButton likeBtn = new JButton(userLiked ? "❤ Unlike (" + likes + ")" : "🤍 Like (" + likes + ")");
-        likeBtn.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 12));
-        likeBtn.setBackground(userLiked ? new Color(255, 150, 150) : new Color(255, 200, 200));
-        likeBtn.setForeground(Color.BLACK);
-        likeBtn.setFocusPainted(false);
+
+        JButton likeBtn = new JButton(userLiked ? "❤" + likes : "🤍" + likes);
+        likeBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
+        likeBtn.setBorderPainted(false);
+        likeBtn.setContentAreaFilled(false);
         likeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        likeBtn.setForeground(Color.GRAY);
+
         likeBtn.addActionListener(e -> {
             boolean isCurrentlyLiked = likedFeedback.contains(feedbackID);
             if (isCurrentlyLiked) {
                 likedFeedback.remove(feedbackID);
                 updateFeedbackLikes(feedbackID, likes - 1);
-                likeBtn.setText("🤍 Like (" + (likes - 1) + ")");
-                likeBtn.setBackground(new Color(255, 200, 200));
             } else {
                 likedFeedback.add(feedbackID);
                 updateFeedbackLikes(feedbackID, likes + 1);
-                likeBtn.setText("❤ Unlike (" + (likes + 1) + ")");
-                likeBtn.setBackground(new Color(255, 150, 150));
             }
             loadFeedbackFromFile();
             displayFeedback();
         });
 
-        JButton replyBtn = new JButton("💬 Reply");
-        replyBtn.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 12));
-        replyBtn.setBackground(new Color(150, 200, 255));
-        replyBtn.setForeground(Color.BLACK);
-        replyBtn.setFocusPainted(false);
+        JButton replyBtn = new JButton("Reply");
+        replyBtn.setBorderPainted(false);
+        replyBtn.setContentAreaFilled(false);
+        replyBtn.setForeground(new Color(66, 133, 244));
         replyBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         replyBtn.addActionListener(e -> showReplyDialog(feedbackID));
 
         footer.add(likeBtn);
         footer.add(replyBtn);
+
+        // ===== THREE DOT MENU =====
+        if (currentUserID.equals(customerID)) {
+            JButton menuBtn = createThreeDotMenu(feedbackID, customerID, false);
+            footer.add(menuBtn);
+        }
 
         container.add(header, BorderLayout.NORTH);
         container.add(messageLabel, BorderLayout.CENTER);
@@ -266,11 +255,8 @@ public class Feedback extends JPanel {
 
     private JPanel createReplyCard(String[] reply, String mainFeedbackID) {
         JPanel container = new JPanel(new BorderLayout());
-        container.setBackground(new Color(225, 240, 255));
-        container.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(180, 200, 220), 1),
-                new EmptyBorder(12, 20, 12, 20)
-        ));
+        container.setBackground(Color.WHITE);
+        container.setBorder(new EmptyBorder(5, 60, 5, 10)); // indent like Google replies
         container.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
         String feedbackID = reply[0];
@@ -283,15 +269,15 @@ public class Feedback extends JPanel {
 
         // ===== HEADER =====
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(225, 240, 255));
+        header.setBackground(Color.WHITE);
 
+        // LEFT SIDE (name + date)
         JPanel left = new JPanel();
         left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
-        left.setBackground(new Color(225, 240, 255));
+        left.setBackground(Color.WHITE);
 
-        JLabel nameLabel = new JLabel("↳ " + replyUserName + " (" + userRole + ")");
-        nameLabel.setFont(new Font("Segoe UI Symbol", Font.BOLD, 12));
-        nameLabel.setForeground(new Color(100, 150, 200));
+        JLabel nameLabel = new JLabel(replyUserName + " (" + userRole + ")");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
         JLabel dateLabel = new JLabel(createdDate);
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 10));
@@ -300,37 +286,86 @@ public class Feedback extends JPanel {
         left.add(nameLabel);
         left.add(dateLabel);
 
-        // RIGHT SIDE (MENU)
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        right.setBackground(new Color(225, 240, 255));
-
-        if (currentUserID.equals(replyUserID)) {
-            JButton menuBtn = createThreeDotMenu(feedbackID, replyUserID);
-            right.add(menuBtn);
-        }
-
         header.add(left, BorderLayout.WEST);
-        header.add(right, BorderLayout.EAST);
 
         // ===== MESSAGE =====
         JLabel messageLabel = new JLabel("<html>" + replyMessage + "</html>");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        messageLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
+        messageLabel.setBorder(new EmptyBorder(5, 0, 5, 0));
 
+        // ===== FOOTER WITH LIKE AND MENU =====
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setBackground(Color.WHITE);
+
+        int replyLikes = reply.length > 8 ? Integer.parseInt(reply[8]) : 0;
+        boolean replyUserLiked = likedFeedback.contains(feedbackID);
+
+        JButton replyLikeBtn = new JButton(replyUserLiked ? "❤" + replyLikes : "🤍" + replyLikes);
+        replyLikeBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
+        replyLikeBtn.setBorderPainted(false);
+        replyLikeBtn.setContentAreaFilled(false);
+        replyLikeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        replyLikeBtn.setForeground(Color.GRAY);
+
+        replyLikeBtn.addActionListener(e -> {
+            boolean isCurrentlyLiked = likedFeedback.contains(feedbackID);
+            if (isCurrentlyLiked) {
+                likedFeedback.remove(feedbackID);
+                updateFeedbackLikes(feedbackID, replyLikes - 1);
+            } else {
+                likedFeedback.add(feedbackID);
+                updateFeedbackLikes(feedbackID, replyLikes + 1);
+            }
+            loadFeedbackFromFile();
+            displayFeedback();
+        });
+
+        JPanel leftFooter = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        leftFooter.setBackground(Color.WHITE);
+        leftFooter.add(replyLikeBtn);
+
+        JButton replyToReplyBtn = new JButton("Reply");
+        replyToReplyBtn.setBorderPainted(false);
+        replyToReplyBtn.setContentAreaFilled(false);
+        replyToReplyBtn.setForeground(new Color(66, 133, 244));
+        replyToReplyBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        replyToReplyBtn.addActionListener(e -> showReplyDialog(mainFeedbackID));
+        leftFooter.add(replyToReplyBtn);
+
+        if (currentUserID.equals(replyUserID)) {
+            JButton replyMenuBtn = createThreeDotMenu(feedbackID, replyUserID, false);
+            leftFooter.add(replyMenuBtn);
+        }
+
+        footer.add(leftFooter, BorderLayout.WEST);
+
+        // ===== ADD TO CONTAINER =====
         container.add(header, BorderLayout.NORTH);
         container.add(messageLabel, BorderLayout.CENTER);
+        container.add(footer, BorderLayout.SOUTH);
 
         return container;
     }
 
     private JButton createThreeDotMenu(String feedbackID, String feedbackUserID) {
+        return createThreeDotMenu(feedbackID, feedbackUserID, true);
+    }
+
+    private JButton createThreeDotMenu(String feedbackID, String feedbackUserID, boolean withBackground) {
         JButton menuBtn = new JButton("⋮");
-        menuBtn.setFont(new Font("Segoe UI Symbol", Font.BOLD, 16));
-        menuBtn.setPreferredSize(new Dimension(35, 35));
-        menuBtn.setBackground(new Color(200, 200, 200));
-        menuBtn.setForeground(Color.BLACK);
+        menuBtn.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 18));
         menuBtn.setFocusPainted(false);
         menuBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        if (withBackground) {
+            menuBtn.setPreferredSize(new Dimension(35, 35));
+            menuBtn.setBackground(new Color(200, 200, 200));
+            menuBtn.setForeground(Color.BLACK);
+        } else {
+            menuBtn.setBorderPainted(false);
+            menuBtn.setContentAreaFilled(false);
+            menuBtn.setForeground(Color.GRAY);
+        }
 
         menuBtn.addActionListener(e -> {
             JPopupMenu popupMenu = new JPopupMenu();
