@@ -109,9 +109,9 @@ public class CustomerAppointment extends JPanel {
         sub.setForeground(Color.DARK_GRAY);
 
         JLabel phone = new JLabel("📞 +(60)127744638");
-        phone.setFont(new Font("Arial", Font.PLAIN, 18));
+        phone.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
         JLabel email = new JLabel("✉ @car8service@gmail.com");
-        email.setFont(new Font("Arial", Font.PLAIN, 18));
+        email.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
 
         contactPanel.add(c1);
         contactPanel.add(c2);

@@ -278,6 +278,8 @@ public class MyAppointment extends JPanel {
         status.setBackground(getStatusColor(statusText));
         status.setForeground(Color.BLACK);
         status.setFont(new Font("Arial", Font.BOLD, 12));
+        status.setPreferredSize(new Dimension(120, 25));
+        status.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel arrow = new JLabel("▼");
         arrow.setForeground(Color.WHITE);
